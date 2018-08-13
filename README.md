@@ -1,4 +1,4 @@
-# nkn-client-js
+# nkn-wallet-js
 
 JavaScript implementation of NKN wallet.
 
@@ -7,6 +7,7 @@ functions working properly. It should be used only for testing now.**
 
 ## Build
 ```
+npm install
 grunt dist
 ```
 
