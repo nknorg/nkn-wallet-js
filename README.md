@@ -93,6 +93,24 @@ toJSON()
 
 ```javascript
 /***
+ * get the public key of this wallet
+ * @returns {string} : the public key of this wallet
+ */
+getPublicKey()
+```
+
+```javascript
+/***
+ * get the private key of this wallet
+ * @returns {string} : the private key of this wallet
+ *
+ * !!! anyone with the private key has the power to restore a full-featured wallet !!!!
+ */
+getPrivateKey()
+```
+
+```javascript
+/***
  * transfer nkn to some valid address
  * @param toAddress : string : valid nkn address
  * @param value : number : value for transfer
@@ -101,7 +119,7 @@ toJSON()
  * @param fail : function : callback for all errors that happened in transfer
  *
  * !!! the fail function will be called for any transfer errors  
- *     and the parameter applied is a NknWalletError instance. !!!
+ *     and the parameter applied is a WalletError instance. !!!
   */
 transferTo(toAddress, value, password, success, fail)
 ```
@@ -114,6 +132,28 @@ transferTo(toAddress, value, password, success, fail)
  * @returns {boolean} : true for http request success and false for fail
  */
 queryAssetBalance(success, fail)
+```
+
+```javascript
+/***
+ * recharge the prepaid balance
+ * @param value : number : how much NKN you want to prepay
+ * @param rates : number : how much NKN you want to pay for one data transfer
+ * @param password : string : password for this wallet
+ * @param success : function : callback for prepay success
+ * @param fail : function : callback for prepay failed
+ */
+prepay(value, rates, password, success, fail)
+```
+
+```javascript
+/***
+ * query the prepay balance
+ * @param success : function(data) : callback for query success
+ *                                    the data's will be an object like this {Amount: string, Rates: string}
+ * @param fail : function : callback for query failed.
+ */
+queryPrepaiedInfo(success, fail)
 ```
 
 ## Examples
