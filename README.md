@@ -21,10 +21,12 @@ So you need some configure first before you use the wallet sdk.
 
 First of all, set the node you want to link and the NKN token id:
 ```javascript
-  nknWalletSDK.configure({
-    assetId: 'NKN Token ID',
-    rpcNode: "127.0.0.1",
-    rpcPort: "30003"
+nknWalletSDK.configure({
+    //this is a node ip address in our test net
+    rpcNode: '35.229.164.111', 
+    
+    //rpc port of the node
+    rpcPort: '30003', 
   })
 ```
 
@@ -39,9 +41,9 @@ Then you can do everything you want to with the wallet sdk.
 /***
  * global configuration:
  * {
- *  assetId: '',  // the NKN Token id
- *  rpcNode:'',   // node ip for dynamic information query
- *  rpcPort:'',   // node port for dynamic information query
+ *  assetId: '',  // the NKN Token id, default value: 4945ca009174097e6614d306b66e1f9cb1fce586cb857729be9e1c5cc04c9c02
+ *  rpcNode:'',   // node ip for dynamic information query, default value: 127.0.0.1
+ *  rpcPort:'',   // node port for dynamic information query, default value: 30003
  * }
  *
  * @param config | Object
@@ -158,20 +160,28 @@ queryPrepaiedInfo(success, fail)
 ```
 
 ## Examples
++ create a new wallet
 ```javascript
-//create a new wallet
 const wallet = nknWallet.newWallet('pwd')
+```
 
-//get wallet's json string
++ get wallet's json string
+```javascript
 const walletJson = wallet.toJSON()
+```
 
-//load wallet from a wallet json string
++ load wallet from a wallet json string
+```javascript
 const walletFromJson = nknWallet.loadJsonWallet(walletJson, 'pwd')
+```
 
-//restore wallet from a private key
++ restore wallet from a private key
+```javascript
 const walletFromPrivateKey = nknWallet.restoreWalletByPrivateKey('the private key', 'new-wallet-password')
+```
 
-//transfer asset to some address
++ transfer asset to some address
+```javascript
 wallet.transferTo('some valid address', 100, 'pwd', 
   function(data) {
     console.log('success: ', data)
@@ -179,8 +189,10 @@ wallet.transferTo('some valid address', 100, 'pwd',
    function(error) {
     console.log('fail: ', error)
   })
-  
-//query asset balance for this wallet
+```
+
++ query asset balance for this wallet
+```javascript
 wallet.queryAssetBalance(
   function(value) {
     console.log('asset balance for this wallet is: ', value.toString())

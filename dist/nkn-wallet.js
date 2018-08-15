@@ -27,22 +27,22 @@ let NKN_WALLET_ERROR_LIST = new function () {
   let errorList = {}
 
   errorList[NKN_ERROR_CODE.UNKNOWN_ERR()] =
-    new NknWalletError(NKN_ERROR_CODE.UNKNOWN_ERR(), 'UNKNOWN_ERR')
+    new WalletError(NKN_ERROR_CODE.UNKNOWN_ERR(), 'UNKNOWN_ERR')
 
   errorList[NKN_ERROR_CODE.NOT_ENOUGH_NKN_COIN()] =
-    new NknWalletError(NKN_ERROR_CODE.NOT_ENOUGH_NKN_COIN(), 'nkn coin is not enough')
+    new WalletError(NKN_ERROR_CODE.NOT_ENOUGH_NKN_COIN(), 'nkn coin is not enough')
 
   errorList[NKN_ERROR_CODE.NOT_ENOUGH_NKN_COIN()] =
-    new NknWalletError(NKN_ERROR_CODE.NOT_ENOUGH_NKN_COIN(), 'nkn coin is not enough')
+    new WalletError(NKN_ERROR_CODE.NOT_ENOUGH_NKN_COIN(), 'nkn coin is not enough')
 
   errorList[NKN_ERROR_CODE.INVALID_ADDRESS()] =
-    new NknWalletError(NKN_ERROR_CODE.INVALID_ADDRESS(), 'invalid address')
+    new WalletError(NKN_ERROR_CODE.INVALID_ADDRESS(), 'invalid address')
 
   errorList[NKN_ERROR_CODE.INVALID_PASSWORD()] =
-    new NknWalletError(NKN_ERROR_CODE.INVALID_PASSWORD(), 'invalid password')
+    new WalletError(NKN_ERROR_CODE.INVALID_PASSWORD(), 'invalid password')
 
   errorList[NKN_ERROR_CODE.INVALID_PASSWORD()] =
-    new NknWalletError(NKN_ERROR_CODE.INVALID_WALLET_FORMAT(), 'invalid wallet format')
+    new WalletError(NKN_ERROR_CODE.INVALID_WALLET_FORMAT(), 'invalid wallet format')
 
   this.newError = function (code) {
     if(!errorList[code]) {
@@ -564,9 +564,9 @@ module.exports = {
 'use strict'
 
 module.exports = {
-  assetId: '',
-  rpcNode:'',
-  rpcPort:'',
+  assetId: '4945ca009174097e6614d306b66e1f9cb1fce586cb857729be9e1c5cc04c9c02',
+  rpcNode: '127.0.0.1',
+  rpcPort: '30003',
 }
 },{}],7:[function(require,module,exports){
 'use strict'
