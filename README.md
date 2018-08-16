@@ -201,3 +201,31 @@ prepay(value, rates, password)
  */
 queryPrepaiedInfo()
 ```
+
+## Contributing
+
+**Can I submit a bug, suggestion or feature request?**
+
+Yes. Please open an issue for that.
+
+**Can I contribute patches?**
+
+Yes, we appreciate your help! To make contributions, please fork the repo, push
+your changes to the forked repo with signed-off commits, and open a pull request
+here.
+
+Please sign off your commit. This means adding a line "Signed-off-by: Name
+<email>" at the end of each commit, indicating that you wrote the code and have
+the right to pass it on as an open source patch. This can be done automatically
+by adding -s when committing:
+
+```shell
+git commit -s
+```
+
+## Community
+
+* [Discord](https://discord.gg/c7mTynX)
+* [Telegram](https://t.me/nknorg)
+* [Reddit](https://www.reddit.com/r/nknblockchain/)
+* [Twitter](https://twitter.com/NKN_ORG)
