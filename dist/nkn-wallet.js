@@ -1081,6 +1081,7 @@ const Is = require('is')
 
 let NknWalletConfig = require('./config')
 
+configure(NknWalletConfig)
 
 let NknWallet = function (account) {
   let _account = account
