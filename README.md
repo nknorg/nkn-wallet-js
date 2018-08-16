@@ -16,7 +16,7 @@ npm install nkn-wallet
 And then in your code:
 
 ```javascript
-const nknWalletSDK = require('nkn-wallet');
+const nknWallet = require('nkn-wallet');
 ```
 
 For browser, use `dist/nkn-wallet.js` or `dist/nkn-wallet.min.js`.
@@ -25,12 +25,12 @@ For browser, use `dist/nkn-wallet.js` or `dist/nkn-wallet.min.js`.
 
 + import
 ```javascript
-const nknWalletSDK = require('nkn-wallet');
+const nknWallet = require('nkn-wallet');
 ```
 
 + create a new wallet
 ```javascript
-const wallet = nknWalletSDK.newWallet('pwd')
+const wallet = nknWallet.newWallet('pwd')
 ```
 
 + get wallet's json string
@@ -40,12 +40,12 @@ const walletJson = wallet.toJSON()
 
 + load wallet from a wallet json string
 ```javascript
-const walletFromJson = nknWalletSDK.loadJsonWallet(walletJson, 'pwd')
+const walletFromJson = nknWallet.loadJsonWallet(walletJson, 'pwd')
 ```
 
 + restore wallet from a private key
 ```javascript
-const walletFromPrivateKey = nknWalletSDK.restoreWalletByPrivateKey('the private key', 'new-wallet-password')
+const walletFromPrivateKey = nknWallet.restoreWalletByPrivateKey('the private key', 'new-wallet-password')
 ```
 
 + transfer asset to some address
@@ -72,11 +72,11 @@ Check [examples](examples) for full examples.
 
 NKN wallet only stores some static information such as encrypted private keys,
 addresses and so on. All dynamic information needs to be queried from a NKN
-node. By default the SDK will try to use RPC server provided by us, but you can
+node. By default it will try to use RPC server provided by us, but you can
 change it (together with NKN token ID) by calling the global configure function:
 
 ```javascript
-nknWalletSDK.configure({
+nknWallet.configure({
   rpcAddr: 'http://127.0.0.1:30003',
 })
 ```
@@ -86,7 +86,7 @@ configurations will be used.
 
 ## API
 
-+ nknWalletSDK
++ nknWallet
 
 ```javascript
 
@@ -99,7 +99,7 @@ configurations will be used.
  *
  * @param config | Object
  */
-nknWalletSDK.configure(config)
+nknWallet.configure(config)
 ```
 
 ```javascript
@@ -108,7 +108,7 @@ nknWalletSDK.configure(config)
  * @param password : string : the password to encrypt wallet
  * @returns {NknWallet} : a NknWallet instance
  */
-nknWalletSDK.newWallet(password)
+nknWallet.newWallet(password)
 ```
 
 ```javascript
@@ -120,7 +120,7 @@ nknWalletSDK.newWallet(password)
  *
  * !this method will thow an error if the password is wrong!
  */
-nknWalletSDK.loadJsonWallet(walletJson, password)
+nknWallet.loadJsonWallet(walletJson, password)
 ```
 
 ```javascript
@@ -130,7 +130,7 @@ nknWalletSDK.loadJsonWallet(walletJson, password)
  * @param password : string : password for new wallet
  * @returns {NknWallet} : a NknWallet instance
  */
-nknWalletSDK.restoreWalletByPrivateKey(privateKey, password)
+nknWallet.restoreWalletByPrivateKey(privateKey, password)
 ```
 
 + NknWallet

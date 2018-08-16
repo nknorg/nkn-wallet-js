@@ -8,7 +8,7 @@ module.exports = function(grunt) {
         },
         options: {
           browserifyOptions: {
-            standalone: 'nkn-wallet-SDK'
+            standalone: 'nkn-wallet'
           }
         }
       }

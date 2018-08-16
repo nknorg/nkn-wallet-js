@@ -1,21 +1,21 @@
-const nknWalletSDK = require('../lib/wallet');
+const nknWallet = require('../lib/wallet');
 
 // Uncomment this if you want to use customized rpc node
-// nknWalletSDK.configure({
+// nknWallet.configure({
 //   rpcAddr: 'http://127.0.0.1:30003'
 // })
 
 // Create a new wallet
-const wallet = nknWalletSDK.newWallet('pwd')
+const wallet = nknWallet.newWallet('pwd')
 
 // Get wallet's json string
 const walletJson = wallet.toJSON()
 
 // Load wallet from a wallet json string
-const walletFromJson = nknWalletSDK.loadJsonWallet(walletJson, 'pwd')
+const walletFromJson = nknWallet.loadJsonWallet(walletJson, 'pwd')
 
 // Restore wallet from a private key
-const walletFromPrivateKey = nknWalletSDK.restoreWalletByPrivateKey('the private key', 'new-wallet-password')
+const walletFromPrivateKey = nknWallet.restoreWalletByPrivateKey('the private key', 'new-wallet-password')
 
 // Query asset balance for this wallet
 wallet.queryAssetBalance().then(function(value) {
