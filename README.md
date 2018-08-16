@@ -15,26 +15,22 @@ grunt dist
 
 For browser, use `dist/nkn-wallet.js` or `dist/nkn-wallet.min.js`.
 
-NKN wallet only stores some static information such as encrypted private keys, addresses and so on.
-All dynamic information needs to be queried from a running nkn node.
-So you need some configure first before you use the wallet sdk.
+NKN wallet only stores some static information such as encrypted private keys,
+addresses and so on. All dynamic information needs to be queried from a NKN
+node. By default the SDK will try to use RPC server provided by us, but you can
+change it (together with NKN token ID) by calling configure:
 
-First of all, set the node you want to link and the NKN token id:
 ```javascript
 nknWalletSDK.configure({
-    //this is a node ip address in our test net
-    rpcNode: '35.229.164.111', 
-    
-    //rpc port of the node
-    rpcPort: '30003', 
-  })
+  rpcAddr: 'http://127.0.0.1:30003',
+})
 ```
 
-Then you can do everything you want to with the wallet sdk.
+Then you can do everything you want to with the wallet SDK.
 
 ## API
 
-+ nknWalletSDK 
++ nknWalletSDK
 
 ```javascript
 
@@ -42,8 +38,7 @@ Then you can do everything you want to with the wallet sdk.
  * global configuration:
  * {
  *  assetId: '',  // the NKN Token id, default value: 4945ca009174097e6614d306b66e1f9cb1fce586cb857729be9e1c5cc04c9c02
- *  rpcNode:'',   // node ip for dynamic information query, default value: 127.0.0.1
- *  rpcPort:'',   // node port for dynamic information query, default value: 30003
+ *  rpcAddr:'',   // node addr for dynamic information query, default value: http://cluster2-oregon.nkn.org:30003
  * }
  *
  * @param config | Object
@@ -66,7 +61,7 @@ nknWalletSDK.newWallet(password)
  * @param walletJson : string : a json format wallet
  * @param password : string : password for this wallet
  * @returns {NknWallet | null} : return NknWallet instance or null if key information is missing.
- * 
+ *
  * !this method will thow an error if the password is wrong!
  */
 nknWalletSDK.loadJsonWallet(walletJson, password)
@@ -82,7 +77,7 @@ nknWalletSDK.loadJsonWallet(walletJson, password)
 nknWalletSDK.restoreWalletByPrivateKey(privateKey, password)
 ```
 
-+ NknWallet 
++ NknWallet
 
 All of the following methods are instance methods
 
@@ -182,10 +177,10 @@ const walletFromPrivateKey = nknWallet.restoreWalletByPrivateKey('the private ke
 
 + transfer asset to some address
 ```javascript
-wallet.transferTo('some valid address', 100, 'pwd', 
+wallet.transferTo('some valid address', 100, 'pwd',
   function(data) {
     console.log('success: ', data)
-  }, 
+  },
    function(error) {
     console.log('fail: ', error)
   })

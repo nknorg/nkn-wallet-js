@@ -566,9 +566,9 @@ module.exports = {
 
 module.exports = {
   assetId: '4945ca009174097e6614d306b66e1f9cb1fce586cb857729be9e1c5cc04c9c02',
-  rpcNode: '127.0.0.1',
-  rpcPort: '30003',
+  rpcAddr: 'http://node00002.nkn.org:30003',
 }
+
 },{}],7:[function(require,module,exports){
 'use strict'
 
@@ -1015,8 +1015,8 @@ function axiosRequest(scope, param, success, fail) {
   return true
 }
 
-function configure(ip, port) {
-  server = 'http://' + ip + ':' + port
+function configure(addr) {
+  server = addr
 }
 
 function getUTXO(scope, address, assetId, callId = 'nkn-sdk', success = null, fail = null) {
@@ -1053,6 +1053,7 @@ module.exports = {
   sendRawTransfer,
   getPrepaiedInfo,
 }
+
 },{"./serverApi":10,"axios":12,"is":113}],10:[function(require,module,exports){
 'use strict'
 
@@ -1443,15 +1444,14 @@ function loadJsonWallet(walletJson, password) {
  * global configuration:
  * {
  *  assetId: '',  // the NKN Token id
- *  rpcNode:'',   // node ip for dynamic information query
- *  rpcPort:'',   // node port for dynamic information query
+ *  rpcAddr:'',   // node addr for dynamic information query
  * }
  *
  * @param config : Object
  */
 function configure(config) {
   NknWalletConfig = Object.assign({}, NknWalletConfig, config)
-  Http.configure(NknWalletConfig.rpcNode, NknWalletConfig.rpcPort)
+  Http.configure(NknWalletConfig.rpcAddr)
 }
 
 module.exports = {
@@ -1464,8 +1464,6 @@ module.exports = {
 
   nknWalletError: NknWalletError.walletError,
 }
-
-
 
 },{"./common/errors":1,"./common/math":2,"./common/prepayTools":3,"./common/rawTransactionTools":4,"./common/transferTools":5,"./config":6,"./crypto/account":7,"./crypto/algorithm":8,"./network/http":9,"is":113}],12:[function(require,module,exports){
 module.exports = require('./lib/axios');
