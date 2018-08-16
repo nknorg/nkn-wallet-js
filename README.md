@@ -5,20 +5,75 @@ JavaScript implementation of NKN wallet.
 **Note: This repository is in the early development stage and may not have all
 functions working properly. It should be used only for testing now.**
 
-## Build
+## Install
+
+For npm:
+
+```shell
+npm install nkn-wallet
 ```
-npm install
-grunt dist
+
+And then in your code:
+
+```javascript
+const nknWalletSDK = require('nkn-wallet');
 ```
+
+For browser, use `dist/nkn-wallet.js` or `dist/nkn-wallet.min.js`.
 
 ## Usage
 
-For browser, use `dist/nkn-wallet.js` or `dist/nkn-wallet.min.js`.
++ import
+```javascript
+const nknWalletSDK = require('nkn-wallet');
+```
+
++ create a new wallet
+```javascript
+const wallet = nknWalletSDK.newWallet('pwd')
+```
+
++ get wallet's json string
+```javascript
+const walletJson = wallet.toJSON()
+```
+
++ load wallet from a wallet json string
+```javascript
+const walletFromJson = nknWalletSDK.loadJsonWallet(walletJson, 'pwd')
+```
+
++ restore wallet from a private key
+```javascript
+const walletFromPrivateKey = nknWalletSDK.restoreWalletByPrivateKey('the private key', 'new-wallet-password')
+```
+
++ transfer asset to some address
+```javascript
+wallet.queryAssetBalance().then(function(value) {
+  console.log('asset balance for this wallet is: ', value.toString())
+}).catch(function(error) {
+  console.log('query balance fail: ', error)
+})
+```
+
++ query asset balance for this wallet
+```javascript
+wallet.transferTo(wallet.address, 100, 'pwd').then(function(data) {
+  console.log('success: ', data)
+}).catch(function(error) {
+  console.log('fail: ', error)
+})
+```
+
+Check [examples](examples) for full examples.
+
+## Configure
 
 NKN wallet only stores some static information such as encrypted private keys,
 addresses and so on. All dynamic information needs to be queried from a NKN
 node. By default the SDK will try to use RPC server provided by us, but you can
-change it (together with NKN token ID) by calling configure:
+change it (together with NKN token ID) by calling the global configure function:
 
 ```javascript
 nknWalletSDK.configure({
@@ -26,7 +81,8 @@ nknWalletSDK.configure({
 })
 ```
 
-Then you can do everything you want to with the wallet SDK.
+Note that configure is optional. If you don't call `configure()`, default
+configurations will be used.
 
 ## API
 
@@ -113,23 +169,19 @@ getPrivateKey()
  * @param toAddress : string : valid nkn address
  * @param value : number : value for transfer
  * @param password : string : wallet password
- * @param success : function : callback for transfer success
- * @param fail : function : callback for all errors that happened in transfer
  *
  * !!! the fail function will be called for any transfer errors  
  *     and the parameter applied is a WalletError instance. !!!
   */
-transferTo(toAddress, value, password, success, fail)
+transferTo(toAddress, value, password)
 ```
 
 ```javascript
 /***
  * query asset balance
- * @param success : function : callback for query success and the parameter is a decimal.js instance
- * @param fail : function : callback for query fail
- * @returns {boolean} : true for http request success and false for fail
+ * @returns {promise} : if resolved, the parameter is a decimal.js instance
  */
-queryAssetBalance(success, fail)
+queryAssetBalance()
 ```
 
 ```javascript
@@ -138,60 +190,14 @@ queryAssetBalance(success, fail)
  * @param value : number : how much NKN you want to prepay
  * @param rates : number : how much NKN you want to pay for one data transfer
  * @param password : string : password for this wallet
- * @param success : function : callback for prepay success
- * @param fail : function : callback for prepay failed
  */
-prepay(value, rates, password, success, fail)
+prepay(value, rates, password)
 ```
 
 ```javascript
 /***
  * query the prepay balance
- * @param success : function(data) : callback for query success
- *                                    the data's will be an object like this {Amount: string, Rates: string}
- * @param fail : function : callback for query failed.
+ * @returns {promise} : if resolved, the data's will be an object like this {Amount: string, Rates: string}
  */
-queryPrepaiedInfo(success, fail)
-```
-
-## Examples
-+ create a new wallet
-```javascript
-const wallet = nknWallet.newWallet('pwd')
-```
-
-+ get wallet's json string
-```javascript
-const walletJson = wallet.toJSON()
-```
-
-+ load wallet from a wallet json string
-```javascript
-const walletFromJson = nknWallet.loadJsonWallet(walletJson, 'pwd')
-```
-
-+ restore wallet from a private key
-```javascript
-const walletFromPrivateKey = nknWallet.restoreWalletByPrivateKey('the private key', 'new-wallet-password')
-```
-
-+ transfer asset to some address
-```javascript
-wallet.transferTo('some valid address', 100, 'pwd',
-  function(data) {
-    console.log('success: ', data)
-  },
-   function(error) {
-    console.log('fail: ', error)
-  })
-```
-
-+ query asset balance for this wallet
-```javascript
-wallet.queryAssetBalance(
-  function(value) {
-    console.log('asset balance for this wallet is: ', value.toString())
-  }, function(error) {
-    console.log('query balance fail: ', error)
-  })
+queryPrepaiedInfo()
 ```
