@@ -48,7 +48,7 @@ const walletFromJson = nknWallet.loadJsonWallet(walletJson, 'pwd')
 const walletFromPrivateKey = nknWallet.restoreWalletByPrivateKey('the private key', 'new-wallet-password')
 ```
 
-+ transfer asset to some address
++ query asset balance for this wallet
 ```javascript
 wallet.queryAssetBalance().then(function(value) {
   console.log('asset balance for this wallet is: ', value.toString())
@@ -57,7 +57,7 @@ wallet.queryAssetBalance().then(function(value) {
 })
 ```
 
-+ query asset balance for this wallet
++ transfer asset to some address
 ```javascript
 wallet.transferTo(wallet.address, 100, 'pwd').then(function(data) {
   console.log('success: ', data)
