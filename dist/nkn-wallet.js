@@ -490,11 +490,6 @@ function genInputsAndOutputs(assetId, utxoList, targetValue, targetProgramHash, 
 
   let notEnough = true
   for(let i=0; i<utxoList.length; i++) {
-    if(NknMath.greaterThanOrEqualTo(utxoValue, targetValue)) {
-      notEnough = false
-      break
-    }
-
     let thisInputVal = NknMath.newNum(utxoList[i].Value)
     let txId = Algorithm.reverseHexBytesString(utxoList[i].Txid)
     utxoValue = NknMath.add(utxoValue, NknMath.mulAndFloor(thisInputVal, NknMath.NKN_ACC_MUL))
@@ -502,6 +497,11 @@ function genInputsAndOutputs(assetId, utxoList, targetValue, targetProgramHash, 
       ReferTxID: txId,
       ReferTxOutputIndex: RawTransactionTools.genInputIndexRawString(utxoList[i].Index)
     })
+
+    if(NknMath.greaterThanOrEqualTo(utxoValue, targetValue)) {
+      notEnough = false
+      break
+    }
   }
 
   if(notEnough) {
