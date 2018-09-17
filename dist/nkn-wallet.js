@@ -943,9 +943,9 @@ function rawTxLengthString(length) {
   if (length < 253) { // 0xFD
     rawHexArray = hexString2Array(length.toString(16))
     needLeadLengthCode = false
-  } else if (orderNum < 65535) { // 0xFFFF
+  } else if (length < 65535) { // 0xFFFF
     lengthLeadString = [253]
-  } else if (orderNum < 4294967295) { // 0xFFFFFFFF
+  } else if (length < 4294967295) { // 0xFFFFFFFF
     lengthLeadString = [254]
   } else {
     lengthLeadString = [255]
@@ -984,6 +984,7 @@ module.exports = {
 
   rawTxLengthString,
 }
+
 },{"base-x":37,"crypto-js":52,"elliptic":79,"is":115,"mathjs":118}],9:[function(require,module,exports){
 'use strict'
 
