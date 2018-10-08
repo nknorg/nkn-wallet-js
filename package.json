@@ -1,6 +1,6 @@
 {
   "name": "nkn-wallet",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "nkn wallet sdk",
   "main": "lib/wallet.js",
   "scripts": {
