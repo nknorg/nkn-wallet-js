@@ -66,6 +66,24 @@ wallet.transferTo(wallet.address, 100, 'pwd').then(function(data) {
 })
 ```
 
++ register name for this wallet (only a-z and length 8-12)
+```javascript
+wallet.registerName('somename', 'pwd').then(function(data) {
+  console.log('success: ', data)
+}).catch(function(error) {
+  console.log('fail: ', error)
+})
+```
+
++ delete name for this wallet
+```javascript
+wallet.deleteName('pwd').then(function(data) {
+  console.log('success: ', data)
+}).catch(function(error) {
+  console.log('fail: ', error)
+})
+```
+
 Check [examples](examples) for full examples.
 
 ## Configure
@@ -174,6 +192,29 @@ getPrivateKey()
  *     and the parameter applied is a WalletError instance. !!!
   */
 transferTo(toAddress, value, password)
+```
+
+```javascript
+/***
+ * register name on nkn for current wallet
+ * @param name : string : name to register
+ * @param password : string : wallet password
+ *
+ * !!! the fail function will be called for any register errors  
+ *     and the parameter applied is a WalletError instance. !!!
+  */
+registerName(name, password)
+```
+
+```javascript
+/***
+ * delete name on nkn for current wallet
+ * @param password : string : wallet password
+ *
+ * !!! the fail function will be called for any delete errors  
+ *     and the parameter applied is a WalletError instance. !!!
+  */
+deleteName(password)
 ```
 
 ```javascript

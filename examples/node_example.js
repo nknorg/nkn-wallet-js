@@ -31,3 +31,18 @@ wallet.transferTo(wallet.address, 100, 'pwd').then(function(data) {
 }).catch(function(error) {
   console.log('fail: ', error)
 })
+
+// Register name for this wallet
+wallet.registerName('somename', 'pwd').then(function(data) {
+    console.log('success: ', data)
+}).catch(function(error) {
+    console.log('fail: ', error)
+})
+
+// Delete name for this wallet
+// This call will fail because a new account has no name
+wallet.deleteName('pwd').then(function(data) {
+    console.log('success: ', data)
+}).catch(function(error) {
+    console.log('fail: ', error)
+})
