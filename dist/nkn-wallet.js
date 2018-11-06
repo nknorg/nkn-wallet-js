@@ -1172,12 +1172,17 @@ let NknWallet = function (account) {
    * query asset balance
    * @returns {promise} : if resolved, the parameter is a decimal.js instance
    */
-  this.queryAssetBalance = async function () {
-    if(!this.address) {
+  this.queryAssetBalance = async function (targetAddress) {
+    if(!this.address && !targetAddress) {
       throw "Address not set."
     }
 
-    let data = await Http.getUTXO(this, this.address, NknWalletConfig.assetId)
+    let queryAddress = this.address
+    if(Is.string(targetAddress)) {
+      queryAddress = targetAddress
+    }
+
+    let data = await Http.getUTXO(this, queryAddress, NknWalletConfig.assetId)
     if (!data) {
       return NknMath.newNum(0)
     }
@@ -25181,21 +25186,43 @@ utils.intFromLE = intFromLE;
 
 },{"bn.js":40,"minimalistic-assert":675,"minimalistic-crypto-utils":676}],95:[function(require,module,exports){
 module.exports={
-  "_from": "elliptic@^6.0.0",
+  "_args": [
+    [
+      {
+        "raw": "elliptic@^6.0.0",
+        "scope": null,
+        "escapedName": "elliptic",
+        "name": "elliptic",
+        "rawSpec": "^6.0.0",
+        "spec": ">=6.0.0 <7.0.0",
+        "type": "range"
+      },
+      "/Users/et/Work/nkn/github/wallet-sdk/nkn-wallet-js/node_modules/browserify-sign"
+    ]
+  ],
+  "_from": "elliptic@>=6.0.0 <7.0.0",
   "_id": "elliptic@6.4.1",
-  "_inBundle": false,
-  "_integrity": "sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==",
+  "_inCache": true,
   "_location": "/elliptic",
+  "_nodeVersion": "10.5.0",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"
+  },
+  "_npmUser": {
+    "name": "indutny",
+    "email": "fedor@indutny.com"
+  },
+  "_npmVersion": "6.3.0",
   "_phantomChildren": {},
   "_requested": {
-    "type": "range",
-    "registry": true,
     "raw": "elliptic@^6.0.0",
-    "name": "elliptic",
+    "scope": null,
     "escapedName": "elliptic",
+    "name": "elliptic",
     "rawSpec": "^6.0.0",
-    "saveSpec": null,
-    "fetchSpec": "^6.0.0"
+    "spec": ">=6.0.0 <7.0.0",
+    "type": "range"
   },
   "_requiredBy": [
     "/browserify-sign",
@@ -25203,8 +25230,9 @@ module.exports={
   ],
   "_resolved": "https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz",
   "_shasum": "c2d0b7776911b86722c632c3c06c60f2f819939a",
+  "_shrinkwrap": null,
   "_spec": "elliptic@^6.0.0",
-  "_where": "C:\\Users\\insider\\Documents\\nkn-wallet-js\\node_modules\\browserify-sign",
+  "_where": "/Users/et/Work/nkn/github/wallet-sdk/nkn-wallet-js/node_modules/browserify-sign",
   "author": {
     "name": "Fedor Indutny",
     "email": "fedor@indutny.com"
@@ -25212,7 +25240,6 @@ module.exports={
   "bugs": {
     "url": "https://github.com/indutny/elliptic/issues"
   },
-  "bundleDependencies": false,
   "dependencies": {
     "bn.js": "^4.4.0",
     "brorand": "^1.0.1",
@@ -25222,7 +25249,6 @@ module.exports={
     "minimalistic-assert": "^1.0.0",
     "minimalistic-crypto-utils": "^1.0.0"
   },
-  "deprecated": false,
   "description": "EC cryptography",
   "devDependencies": {
     "brfs": "^1.4.3",
@@ -25240,9 +25266,19 @@ module.exports={
     "jshint": "^2.6.0",
     "mocha": "^2.1.0"
   },
+  "directories": {},
+  "dist": {
+    "integrity": "sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==",
+    "shasum": "c2d0b7776911b86722c632c3c06c60f2f819939a",
+    "tarball": "https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz",
+    "fileCount": 17,
+    "unpackedSize": 118371,
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"
+  },
   "files": [
     "lib"
   ],
+  "gitHead": "523da1cf71ddcfd607fbdee1858bc2af47f0e700",
   "homepage": "https://github.com/indutny/elliptic",
   "keywords": [
     "EC",
@@ -25252,7 +25288,15 @@ module.exports={
   ],
   "license": "MIT",
   "main": "lib/elliptic.js",
+  "maintainers": [
+    {
+      "name": "indutny",
+      "email": "fedor@indutny.com"
+    }
+  ],
   "name": "elliptic",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/indutny/elliptic.git"
