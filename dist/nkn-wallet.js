@@ -484,8 +484,6 @@ function callTransferFailHandler(fail, error) {
   if(Is.function(fail)) {
     fail(error)
   }
-
-  console.error(error)
 }
 
 module.exports = {
@@ -916,6 +914,21 @@ function getAddressStringVerifyCode(address) {
   return array2HexString(verifyBytes)
 }
 
+function paddingSign(data) {
+  let dataLen = data.length
+  if(64 === dataLen) {
+    return data
+  }
+
+  let diff = 64 - dataLen
+
+  for(let i=0; i<diff; i++){
+    data = "0" + data
+  }
+
+  return data
+}
+
 /***
  *
  * @param privateKey
@@ -929,14 +942,19 @@ let nknP256r1 = function (privateKey) {
 
   this.sign = function (data) {
     let sigData = keyPair.sign(data)
-    return sigData.r.toString('hex') + sigData.s.toString('hex')
+    let r = sigData.r.toString('hex')
+    let s = sigData.s.toString('hex')
+
+    r = paddingSign(r)
+    s = paddingSign(s)
+
+    return r + s
   }
 
   if(Is.string(privateKey)) {
     try {
       keyPair = restoreKeyPairByPrivateKey.call(this, privateKey)
     } catch(e) {
-      console.error(e)
       throw new Error("restore key pair by private key failed: " + privateKey)
     }
 
@@ -1526,6 +1544,7 @@ module.exports = {
   newWallet: newWallet,
   loadJsonWallet: loadJsonWallet,
   restoreWalletByPrivateKey: restoreWalletByPrivateKey,
+  addressVerify: RawTransactionTools.verifyAddress,
 
   algorithm: Algorithm,
 
@@ -25322,7 +25341,7 @@ module.exports = require('./').polyfill();
  * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
- * @version   v4.2.5+7f2b526d
+ * @version   v4.2.4+314e4831
  */
 
 (function (global, factory) {
@@ -26428,19 +26447,15 @@ var Promise$1 = function () {
     var promise = this;
     var constructor = promise.constructor;
 
-    if (isFunction(callback)) {
-      return promise.then(function (value) {
-        return constructor.resolve(callback()).then(function () {
-          return value;
-        });
-      }, function (reason) {
-        return constructor.resolve(callback()).then(function () {
-          throw reason;
-        });
+    return promise.then(function (value) {
+      return constructor.resolve(callback()).then(function () {
+        return value;
       });
-    }
-
-    return promise.then(callback, callback);
+    }, function (reason) {
+      return constructor.resolve(callback()).then(function () {
+        throw reason;
+      });
+    });
   };
 
   return Promise;
