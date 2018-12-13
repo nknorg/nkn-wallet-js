@@ -256,10 +256,17 @@ function rawRegisterName(name, publicKey) {
  * @param publicKey
  * @returns {string}
  */
-function rawDeleteName(publicKey) {
+function rawDeleteName(name, publicKey) {
     let txType = '52'
-    let payloadVersion = '00'
+    let payloadVersion = '01'
     let publicKeyLength = '21'
+    let nameLength = Algorithm.array2HexString([name.length])
+    let nameBytes = []
+    for (let i = 0; i < name.length; i++) {
+        let code = name.charCodeAt(i)
+        nameBytes.push(code)
+    }
+    let nameHexString = Algorithm.array2HexString(nameBytes)
     let attrCount = '01'
     let attrDataLength = '20'
     let attr = {
@@ -271,7 +278,7 @@ function rawDeleteName(publicKey) {
     let inputsAndOutputs = inputs + outputs
 
     let attrRawString = attrCount + attr.Usage + attrDataLength + attr.Data
-    return txType + payloadVersion + publicKeyLength + publicKey + attrRawString + inputsAndOutputs
+    return txType + payloadVersion + publicKeyLength + publicKey + nameLength + nameHexString + attrRawString + inputsAndOutputs
 }
 
 module.exports = {
@@ -1335,14 +1342,14 @@ let NknWallet = function (account) {
      * delete name on nkn for current wallet
      * @param password : string : wallet password
      */
-    this.deleteName = async function (password) {
+    this.deleteName = async function (name, password) {
         //verify wallet
         if(!verifyWallet(this, password)) {
             throw NknWalletError.newError(NknWalletError.code.INVALID_PASSWORD())
         }
 
         //gen base delete name raw string
-        let baseDeleteName = NknName.rawDeleteName(this.getPublicKey())
+        let baseDeleteName = NknName.rawDeleteName(name, this.getPublicKey())
         let signature = RawTransactionTools.rawTransferSignature(_account, baseDeleteName)
         let signatureRedeem = RawTransactionTools.rawSignatureRedeem(account)
 

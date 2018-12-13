@@ -77,7 +77,7 @@ wallet.registerName('somename', 'pwd').then(function(data) {
 
 + delete name for this wallet
 ```javascript
-wallet.deleteName('pwd').then(function(data) {
+wallet.deleteName('somename', 'pwd').then(function(data) {
   console.log('success: ', data)
 }).catch(function(error) {
   console.log('fail: ', error)
@@ -218,12 +218,13 @@ registerName(name, password)
 ```javascript
 /***
  * delete name on nkn for current wallet
+ * @param name : string : name to delete
  * @param password : string : wallet password
  *
  * !!! the fail function will be called for any delete errors  
  *     and the parameter applied is a WalletError instance. !!!
   */
-deleteName(password)
+deleteName(name, password)
 ```
 
 ```javascript
