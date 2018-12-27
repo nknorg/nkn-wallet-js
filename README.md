@@ -84,6 +84,15 @@ wallet.deleteName('pwd').then(function(data) {
 })
 ```
 
++ subscribe to topic for this wallet for next 10 blocks (publish is done through [nkn-client-js](https://github.com/nknorg/nkn-client-js))
+```javascript
+wallet.subscribe('topic', 10, 'pwd', 'identifier').then(function(data) {
+  console.log('success: ', data)
+}).catch(function(error) {
+  console.log('fail: ', error)
+})
+```
+
 Check [examples](examples) for full examples.
 
 ## Configure
@@ -215,6 +224,20 @@ registerName(name, password)
  *     and the parameter applied is a WalletError instance. !!!
   */
 deleteName(password)
+```
+
+```javascript
+/***
+ * subscribe to topic on nkn for current wallet
+ * @param topic : string : topic to subscribe to
+ * @param duration : number : subscription duration
+ * @param password : string : wallet password
+ * @param identifier : string : optional identifier
+ *
+ * !!! the fail function will be called for any register errors  
+ *     and the parameter applied is a WalletError instance. !!!
+  */
+subscribe(topic, duration, password, identifier = '')
 ```
 
 ```javascript
