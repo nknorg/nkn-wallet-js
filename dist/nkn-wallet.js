@@ -406,7 +406,7 @@ module.exports = {
 const Algorithm = require('./../crypto/algorithm')
 const Mathjs = require('mathjs')
 
-function uint16ToHexString(number) {
+function uint32ToHexString(number) {
     return Algorithm.array2HexString([number >> 24, number >> 16, number >> 8, number].reverse())
 }
 
@@ -418,7 +418,7 @@ function uint16ToHexString(number) {
  * @param duration
  * @returns {string}
  */
-function rawSubscribe(subscriber, identifier, topic, duration) {
+function rawSubscribe(subscriber, identifier, topic, bucket, duration) {
     let txType = '60'
     let payloadVersion = '00'
     let subscriberLength = '21'
@@ -436,7 +436,8 @@ function rawSubscribe(subscriber, identifier, topic, duration) {
         topicBytes.push(code)
     }
     let topicHexString = Algorithm.array2HexString(topicBytes)
-    let durationHexString = uint16ToHexString(duration)
+    let bucketHexString = uint32ToHexString(bucket)
+    let durationHexString = uint32ToHexString(duration)
     let attrCount = '01'
     let attrDataLength = '20'
     let attr = {
@@ -448,7 +449,7 @@ function rawSubscribe(subscriber, identifier, topic, duration) {
     let inputsAndOutputs = inputs + outputs
 
     let attrRawString = attrCount + attr.Usage + attrDataLength + attr.Data
-    return txType + payloadVersion + subscriberLength + subscriber + identifierLength + identifierHexString + topicLength + topicHexString + durationHexString + attrRawString + inputsAndOutputs
+    return txType + payloadVersion + subscriberLength + subscriber + identifierLength + identifierHexString + topicLength + topicHexString + bucketHexString + durationHexString + attrRawString + inputsAndOutputs
 }
 
 module.exports = {
@@ -1354,18 +1355,19 @@ let NknWallet = function (account) {
   /***
    * subscribe to topic on nkn for current wallet
    * @param topic : string : topic to subscribe to
+   * @param bucket : number : bucket of topic to subscribe to
    * @param duration : number : subscription duration
    * @param password : string : wallet password
    * @param identifier : string : optional identifier
    */
-  this.subscribe = async function (topic, duration, password, identifier = '') {
+  this.subscribe = async function (topic, bucket, duration, password, identifier = '') {
     //verify wallet
     if(!verifyWallet(this, password)) {
       throw NknWalletError.newError(NknWalletError.code.INVALID_PASSWORD())
     }
 
     //gen base subscribe raw string
-    let baseSubscribe = NknPubSub.rawSubscribe(this.getPublicKey(), identifier, topic, duration)
+    let baseSubscribe = NknPubSub.rawSubscribe(this.getPublicKey(), identifier, topic, bucket, duration)
     let signature = RawTransactionTools.rawTransferSignature(_account, baseSubscribe)
     let signatureRedeem = RawTransactionTools.rawSignatureRedeem(account)
 
