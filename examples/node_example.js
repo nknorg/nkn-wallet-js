@@ -47,8 +47,8 @@ wallet.deleteName('pwd').then(function(data) {
     console.log('fail: ', error)
 })
 
-// Subscribe to topic for this wallet for next 10 blocks
-wallet.subscribe('topic', 10, 'pwd', 'identifier').then(function(data) {
+// Subscribe to bucket 0 of specified topic for this wallet for next 10 blocks
+wallet.subscribe('topic', 0, 10, 'pwd', 'identifier').then(function(data) {
     console.log('success: ', data)
 }).catch(function(error) {
     console.log('fail: ', error)
