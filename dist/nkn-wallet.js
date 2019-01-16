@@ -420,7 +420,7 @@ function uint32ToHexString(number) {
  */
 function rawSubscribe(subscriber, identifier, topic, bucket, duration) {
     let txType = '60'
-    let payloadVersion = '00'
+    let payloadVersion = '01'
     let subscriberLength = '21'
     let identifierLength = Algorithm.array2HexString([identifier.length])
     let identifierBytes = []
