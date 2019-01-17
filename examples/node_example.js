@@ -41,7 +41,7 @@ wallet.registerName('somename', 'pwd').then(function(data) {
 
 // Delete name for this wallet
 // This call will fail because a new account has no name
-wallet.deleteName('pwd').then(function(data) {
+wallet.deleteName('somename', 'pwd').then(function(data) {
     console.log('success: ', data)
 }).catch(function(error) {
     console.log('fail: ', error)
