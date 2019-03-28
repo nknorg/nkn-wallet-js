@@ -48,16 +48,16 @@ const walletFromJson = nknWallet.loadJsonWallet(walletJson, 'pwd')
 const walletFromPrivateKey = nknWallet.restoreWalletByPrivateKey('the private key', 'new-wallet-password')
 ```
 
-+ query asset balance for this wallet
++ query balance for this wallet
 ```javascript
-wallet.queryAssetBalance().then(function(value) {
-  console.log('asset balance for this wallet is: ', value.toString())
+wallet.getBalance().then(function(value) {
+  console.log('balance for this wallet is: ', value.toString())
 }).catch(function(error) {
   console.log('query balance fail: ', error)
 })
 ```
 
-+ transfer asset to some address
++ transfer token to some address
 ```javascript
 wallet.transferTo(wallet.address, 100, 'pwd').then(function(data) {
   console.log('success: ', data)
@@ -120,8 +120,7 @@ configurations will be used.
 /***
  * global configuration:
  * {
- *  assetId: '',  // the NKN Token id, default value: 4945ca009174097e6614d306b66e1f9cb1fce586cb857729be9e1c5cc04c9c02
- *  rpcAddr:'',   // node addr for dynamic information query, default value: http://cluster2-oregon.nkn.org:30003
+ *  rpcAddr:'',   // node addr for dynamic information query, default value: http://testnet-node-0001.nkn.org:30003
  * }
  *
  * @param config | Object
@@ -244,28 +243,10 @@ subscribe(topic, bucket, duration, password, identifier = '')
 
 ```javascript
 /***
- * query asset balance
+ * query balance
  * @returns {promise} : if resolved, the parameter is a decimal.js instance
  */
-queryAssetBalance()
-```
-
-```javascript
-/***
- * recharge the prepaid balance
- * @param value : number : how much NKN you want to prepay
- * @param rates : number : how much NKN you want to pay for one data transfer
- * @param password : string : password for this wallet
- */
-prepay(value, rates, password)
-```
-
-```javascript
-/***
- * query the prepay balance
- * @returns {promise} : if resolved, the data's will be an object like this {Amount: string, Rates: string}
- */
-queryPrepaiedInfo()
+getBalance()
 ```
 
 ## Contributing
