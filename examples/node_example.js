@@ -17,6 +17,9 @@ const walletFromJson = nknWallet.loadJsonWallet(walletJson, 'pswd');
 // Restore wallet from a private key
 const walletFromSeed = nknWallet.restoreWalletBySeed(wallet.getSeed(), 'new-wallet-password');
 
+// Verify whether an address is valid
+console.log(nknWallet.verifyAddress(wallet.address));
+
 // Verify password of the wallet
 console.log(wallet.verifyPassword('pswd'));
 
