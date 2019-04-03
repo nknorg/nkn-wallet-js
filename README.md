@@ -7,10 +7,15 @@ functions working properly. It should be used only for testing now.**
 
 ## Install
 
+### Node
+
 ```shell
 npm i nkn-wallet
 ```
 
+### Browser
+
+Use `dist/nkn-wallet.js` or `dist/nkn-wallet.min.js`.
 
 ## Usage
 
@@ -22,8 +27,6 @@ import nknWallet from 'nkn-wallet';
 // ES5
 var nknWallet = require('nkn-wallet');
 ```
-
-For browser, use `dist/nkn-wallet.js` or `dist/nkn-wallet.min.js`.
 
 + Create a new wallet
 ```javascript
