@@ -7,8 +7,6 @@ functions working properly. It should be used only for testing now.**
 
 ## Install
 
-For npm:
-
 ```shell
 npm i nkn-wallet
 ```
@@ -92,7 +90,7 @@ wallet.registerName('some-name')
 
 + Delete name for this wallet
 ```javascript
-wallet.deleteName('somename')
+wallet.deleteName('some-name')
   .then(function(data) {
     console.log('Delete name success:', data);
   }).catch(function(error) {
@@ -180,7 +178,7 @@ nknWallet.restoreWalletBySeed(privateKey, password)
 /***
  * verify whether an address is valid
  * @param address : string : an address
- * @returns {boolean} : a NknWallet instance
+ * @returns {boolean} : verifies whether an address is valid
  */
 nknWallet.verifyAddress(address)
 ```
@@ -264,7 +262,6 @@ deleteName(name)
  * @param topic : string : topic to subscribe to
  * @param bucket : number : bucket of topic to subscribe to
  * @param duration : number : subscription duration
- * @param password : string : wallet password
  * @param identifier : string : optional identifier
  *
  * !!! the fail function will be called for any register errors  
