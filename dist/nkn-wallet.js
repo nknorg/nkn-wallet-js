@@ -279,7 +279,7 @@ module.exports = {
 'use strict'
 
 module.exports = {
-  rpcAddr: 'http://testnet-node-0001.nkn.org:30003',
+  rpcAddr: 'http://devnet-seed-0001.nkn.org:30003',
 }
 
 },{}],5:[function(require,module,exports){
@@ -528,7 +528,11 @@ const CryptoJS = require('crypto-js');
 const hash = require('./hash');
 const tools = require('./tools');
 
-const ADDRESS_GEN_PREFIX = '35'
+const ADDRESS_GEN_PREFIX = '02b825';
+const ADDRESS_GEN_PREFIX_LEN = ADDRESS_GEN_PREFIX.length / 2;
+const UINT160_LEN = 20;
+const CHECKSUM_LEN = 4;
+const ADDRESS_LEN = ADDRESS_GEN_PREFIX_LEN + UINT160_LEN + CHECKSUM_LEN;
 
 /***
 *
@@ -536,11 +540,23 @@ const ADDRESS_GEN_PREFIX = '35'
 * @returns {boolean}
 */
 function verifyAddress(address) {
+  let addressBytes = base58.decode(address);
+
+  if (addressBytes.length !== ADDRESS_LEN) {
+    return false;
+  }
+
+  let addressPrefixBytes = addressBytes.slice(0, ADDRESS_GEN_PREFIX_LEN);
+  let addressPrefix = tools.bytesToHex(addressPrefixBytes);
+  if (addressPrefix !== ADDRESS_GEN_PREFIX) {
+    return false
+  }
+
   let programHash = addressStringToProgramHash(address)
   let addressVerifyCode = getAddressStringVerifyCode(address)
   let programHashVerifyCode = genAddressVerifyCodeFromProgramHash(programHash)
 
-  return (addressVerifyCode === programHashVerifyCode)
+  return addressVerifyCode === programHashVerifyCode;
 }
 
 /***
@@ -579,7 +595,7 @@ function programHashStringToAddress(programHash) {
 */
 function addressStringToProgramHash(address) {
   let addressBytes = base58.decode(address)
-  let programHashBytes = addressBytes.slice(1, addressBytes.length - 4)
+  let programHashBytes = addressBytes.slice(ADDRESS_GEN_PREFIX_LEN, addressBytes.length - CHECKSUM_LEN)
   return tools.bytesToHex(programHashBytes)
 }
 
@@ -591,7 +607,7 @@ function addressStringToProgramHash(address) {
 function genAddressVerifyBytesFromProgramHash(programHash) {
   programHash = ADDRESS_GEN_PREFIX + programHash
   let verifyBytes = tools.hexToBytes(hash.doubleSha256Hex(programHash))
-  return verifyBytes.slice(0, 4)
+  return verifyBytes.slice(0, CHECKSUM_LEN)
 }
 
 /***
@@ -610,7 +626,7 @@ function genAddressVerifyCodeFromProgramHash(programHash) {
 */
 function getAddressStringVerifyCode(address) {
   let addressBytes = base58.decode(address)
-  let verifyBytes = addressBytes.slice(-4)
+  let verifyBytes = addressBytes.slice(-CHECKSUM_LEN)
 
   return tools.bytesToHex(verifyBytes)
 }
