@@ -726,9 +726,10 @@ let baseInfo = function () {
 }
 
 module.exports = {
-  getBalanceByAddr: Object.assign(baseInfo(), {method: "getbalancebyaddr", params: {address:""}}),
-  getNonceByAddr: Object.assign(baseInfo(), {method: "getnoncebyaddr", params: {address:""}}),
-  sendRawTransaction: Object.assign(baseInfo(), {method: "sendrawtransaction", params: {tx:""}}),
+  getBalanceByAddr: Object.assign(baseInfo(), {method: "getbalancebyaddr", params: {address: ""}}),
+  getNonceByAddr: Object.assign(baseInfo(), {method: "getnoncebyaddr", params: {address: ""}}),
+  sendRawTransaction: Object.assign(baseInfo(), {method: "sendrawtransaction", params: {tx: ""}}),
+  getAddressByName: Object.assign(baseInfo(), {method: "getaddressbyname", params: {name: ""}}),
 }
 
 },{}],12:[function(require,module,exports){
@@ -741,7 +742,7 @@ const api = require('./api')
 
 let serverAddr = null
 
-async function axiosRequest(scope, param) {
+async function axiosRequest(param) {
   if(!serverAddr) {
     throw "RPC server address is not set"
   }
@@ -765,34 +766,44 @@ function configure(addr) {
   serverAddr = addr
 }
 
-function getBalanceByAddr(scope, address, callId) {
+function getBalanceByAddr(address, callId) {
   let getBalanceByAddrApi = api.getBalanceByAddr
   getBalanceByAddrApi.params.address = address
   if(!is.undefined(callId)) {
     getBalanceByAddrApi.id = callId
   }
 
-  return axiosRequest(scope, getBalanceByAddrApi)
+  return axiosRequest(getBalanceByAddrApi)
 }
 
-function getNonceByAddr(scope, address, callId) {
+function getNonceByAddr(address, callId) {
   let getNonceByAddrApi = api.getNonceByAddr
   getNonceByAddrApi.params.address = address
   if(!is.undefined(callId)) {
     getNonceByAddrApi.id = callId
   }
 
-  return axiosRequest(scope, getNonceByAddrApi)
+  return axiosRequest(getNonceByAddrApi)
 }
 
-function sendRawTransaction(scope, tx, callId) {
+function sendRawTransaction(tx, callId) {
   let sendRawTransactionApi = api.sendRawTransaction
   sendRawTransactionApi.params.tx = tx
   if(!is.undefined(callId)) {
     sendRawTransactionApi.id = callId
   }
 
-  return axiosRequest(scope, sendRawTransactionApi)
+  return axiosRequest(sendRawTransactionApi)
+}
+
+function getAddressByName(name, callId) {
+  let getAddressByNameApi = api.getAddressByName
+  getAddressByNameApi.params.name = name
+  if(!is.undefined(callId)) {
+    getAddressByNameApi.id = callId
+  }
+
+  return axiosRequest(getAddressByNameApi)
 }
 
 module.exports = {
@@ -800,6 +811,7 @@ module.exports = {
   getBalanceByAddr,
   getNonceByAddr,
   sendRawTransaction,
+  getAddressByName,
 }
 
 },{"./api":11,"axios":19,"es6-promise/auto":83,"is":88}],13:[function(require,module,exports){
@@ -3181,7 +3193,7 @@ function newTransfer(sender, recipient, amount) {
 
 function newRegisterName(publicKey, name) {
   let registerName = new payload.RegisterName();
-  registerName.setRegistrant(Buffer.from(publicKey, 'hex'));
+  registerName.setRegistrant(Buffer.from('04' + publicKey, 'hex'));
   registerName.setName(name);
 
   let pld = new payload.Payload();
@@ -3193,7 +3205,7 @@ function newRegisterName(publicKey, name) {
 
 function newDeleteName(publicKey, name) {
   let deleteName = new payload.DeleteName();
-  deleteName.setRegistrant(Buffer.from(publicKey, 'hex'));
+  deleteName.setRegistrant(Buffer.from('04' + publicKey, 'hex'));
   deleteName.setName(name);
 
   let pld = new payload.Payload();
@@ -3341,7 +3353,7 @@ let NknWallet = function (account) {
       queryAddress = targetAddress
     }
 
-    let data = await http.getBalanceByAddr(this, queryAddress)
+    let data = await http.getBalanceByAddr(queryAddress)
     if (data && data.amount) {
       return nknMath.newNum(data.amount)
     }
@@ -3363,7 +3375,7 @@ let NknWallet = function (account) {
       queryAddress = targetAddress
     }
 
-    let data = await http.getNonceByAddr(this, queryAddress)
+    let data = await http.getNonceByAddr(queryAddress)
     if (data && is.number(data.nonce)) {
       return data.nonce
     }
@@ -3396,7 +3408,7 @@ let NknWallet = function (account) {
 
     let txn = transaction.newTransaction(account, pld, nonce);
 
-    return http.sendRawTransaction(this, tools.bytesToHex(txn.serializeBinary()));
+    return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
   }
 
   /***
@@ -3410,7 +3422,7 @@ let NknWallet = function (account) {
 
     let txn = transaction.newTransaction(account, pld, nonce);
 
-    return http.sendRawTransaction(this, tools.bytesToHex(txn.serializeBinary()));
+    return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
   }
 
   /***
@@ -3424,7 +3436,21 @@ let NknWallet = function (account) {
 
     let txn = transaction.newTransaction(account, pld, nonce);
 
-    return http.sendRawTransaction(this, tools.bytesToHex(txn.serializeBinary()));
+    return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
+  }
+
+  /***
+  * get address of a name
+  * @returns {promise} : if resolved, the parameter is a integer
+  */
+  this.getAddressByName = async function (name) {
+    let addr = await http.getAddressByName(name)
+
+    if (addr && is.string(addr)) {
+      return addr
+    }
+
+    throw "No result returned"
   }
 
   /***
@@ -3442,7 +3468,7 @@ let NknWallet = function (account) {
 
     let txn = transaction.newTransaction(account, pld, nonce);
 
-    return http.sendRawTransaction(this, tools.bytesToHex(txn.serializeBinary()));
+    return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
   }
 
   /***
