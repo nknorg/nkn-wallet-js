@@ -53,6 +53,14 @@ wallet.deleteName('somename').then(function(data) {
   console.log('Delete name fail:', error);
 });
 
+// Get wallet address of a name
+// This call will likely to fail because we need to wait a block till name registration is completed
+wallet.getAddressByName('somename').then(function(data) {
+  console.log('Get address by name success:', data);
+}).catch(function(error) {
+  console.log('Get address by name fail:', error);
+});
+
 // Subscribe to bucket 0 of specified topic for this wallet for next 10 blocks
 wallet.subscribe('topic', 0, 10, 'identifier').then(function(data) {
   console.log('Subscribe success:', data);
