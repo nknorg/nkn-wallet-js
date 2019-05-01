@@ -3193,7 +3193,7 @@ function newTransfer(sender, recipient, amount) {
 
 function newRegisterName(publicKey, name) {
   let registerName = new payload.RegisterName();
-  registerName.setRegistrant(Buffer.from(publicKey, 'hex'));
+  registerName.setRegistrant(Buffer.from('04' + publicKey, 'hex'));
   registerName.setName(name);
 
   let pld = new payload.Payload();
@@ -3205,7 +3205,7 @@ function newRegisterName(publicKey, name) {
 
 function newDeleteName(publicKey, name) {
   let deleteName = new payload.DeleteName();
-  deleteName.setRegistrant(Buffer.from(publicKey, 'hex'));
+  deleteName.setRegistrant(Buffer.from('04' + publicKey, 'hex'));
   deleteName.setName(name);
 
   let pld = new payload.Payload();
