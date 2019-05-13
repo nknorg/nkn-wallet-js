@@ -861,8 +861,8 @@ function toUInt64HexString(hexString) {
  * @param keyPair
  */
 function setNknP256r1Keys(keyPair) {
-  this.publicKey = keyPair.getPublic(true, 'hex')
-  this.privateKey = keyPair.getPrivate('hex')
+  this.publicKey = keyPair.getPublic(true, 'hex').padStart(66, '0')
+  this.privateKey = keyPair.getPrivate('hex').padStart(64, '0')
   this.signatureRedeem = '21' + this.publicKey + 'ac'
   this.programHash = hexString2ProgramHash(this.signatureRedeem)
 }
