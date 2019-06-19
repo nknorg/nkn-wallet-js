@@ -21,6 +21,9 @@ const nknWallet = require('nkn-wallet');
 
 For browser, use `dist/nkn-wallet.js` or `dist/nkn-wallet.min.js`.
 
+If you use it in React Native, you also need to follow the installation guide in
+[react-native-crypto](https://github.com/tradle/react-native-crypto).
+
 ## Usage
 
 + import

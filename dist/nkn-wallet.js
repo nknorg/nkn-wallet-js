@@ -564,7 +564,7 @@ function verifyAddress(address) {
 * @returns {string}
 */
 function publicKeyToSignatureRedeem(publicKey) {
-  return '21' + '04' + publicKey + 'ac';
+  return '20' + publicKey + 'ac';
 }
 
 /***
@@ -3195,7 +3195,7 @@ function newTransfer(sender, recipient, amount) {
 
 function newRegisterName(publicKey, name) {
   let registerName = new payload.RegisterName();
-  registerName.setRegistrant(Buffer.from('04' + publicKey, 'hex'));
+  registerName.setRegistrant(Buffer.from(publicKey, 'hex'));
   registerName.setName(name);
 
   let pld = new payload.Payload();
@@ -3207,7 +3207,7 @@ function newRegisterName(publicKey, name) {
 
 function newDeleteName(publicKey, name) {
   let deleteName = new payload.DeleteName();
-  deleteName.setRegistrant(Buffer.from('04' + publicKey, 'hex'));
+  deleteName.setRegistrant(Buffer.from(publicKey, 'hex'));
   deleteName.setName(name);
 
   let pld = new payload.Payload();
@@ -3324,7 +3324,7 @@ const nknMath = require('./common/math');
 
 var config = require('./config');
 
-const walletVersion = '0.0.1';
+const walletVersion = '1.0.0';
 
 configure(config);
 
