@@ -47,7 +47,6 @@
     "es6-promise": "4.2.4",
     "google-protobuf": "^3.7.1",
     "is": "3.2.1",
-    "react-native-randombytes": "^3.5.3",
     "tweetnacl": "^1.0.1"
   },
   "devDependencies": {
