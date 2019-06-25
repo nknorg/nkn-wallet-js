@@ -20,6 +20,7 @@ let NKN_ERROR_CODE = new function () {
   this.INVALID_ADDRESS = () => {return 2}
   this.INVALID_PASSWORD = () => {return 3}
   this.INVALID_WALLET_FORMAT = () => {return 4}
+  this.INVALID_WALLET_VERSION = () => {return 5}
 }
 
 let NKN_WALLET_ERROR_LIST = new function () {
@@ -40,6 +41,9 @@ let NKN_WALLET_ERROR_LIST = new function () {
 
   errorList[NKN_ERROR_CODE.INVALID_WALLET_FORMAT()] =
     new WalletError(NKN_ERROR_CODE.INVALID_WALLET_FORMAT(), 'invalid wallet format')
+
+  errorList[NKN_ERROR_CODE.INVALID_WALLET_VERSION()] =
+    new WalletError(NKN_ERROR_CODE.INVALID_WALLET_VERSION(), 'invalid wallet version')
 
   this.newError = function (code) {
     if(!errorList[code]) {
@@ -3812,7 +3816,9 @@ const nknMath = require('./common/math');
 
 var config = require('./config');
 
-const walletVersion = '1.0.0';
+const walletVersion = 1;
+const minCompatibleWalletVersion = 1;
+const maxCompatibleWalletVersion = 1;
 
 configure(config);
 
@@ -4117,15 +4123,19 @@ function restoreWalletFromJson(seed, password, prevMasterKey, preIV) {
 */
 function loadJsonWallet(walletJson, password) {
   let walletObj = JSON.parse(walletJson)
+  if (walletObj.Version < minCompatibleWalletVersion || walletObj.Version > maxCompatibleWalletVersion) {
+    throw "Invalid wallet version " + walletObj.Version + ", should be between " + minCompatibleWalletVersion + " and " + maxCompatibleWalletVersion;
+  }
+
   if (!is.string(walletObj.MasterKey) || !is.string(walletObj.IV) || !is.string(walletObj.SeedEncrypted) || !is.string(walletObj.Address)) {
-    return errors.newError(errors.code.INVALID_WALLET_FORMAT())
+    throw "Invalid wallet format";
   }
 
   let keys = decryptWalletSeed(walletObj.MasterKey, walletObj.IV, walletObj.SeedEncrypted, password)
   let wallet = restoreWalletFromJson(keys.seed, password, keys.masterKey, walletObj.IV)
 
   if (wallet.address !== walletObj.Address) {
-    return errors.newError(errors.code.INVALID_PASSWORD())
+    throw "Wrong password";
   }
 
   return wallet
