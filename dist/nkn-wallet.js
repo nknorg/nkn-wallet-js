@@ -219,6 +219,9 @@ module.exports = {
 (function (Buffer){
 'use strict';
 
+const maxUintBits = 48;
+const maxUint = 2**maxUintBits;
+
 function encodeUint8(value) {
   let buf = Buffer.alloc(1, 0);
   buf.writeUInt8(value);
@@ -238,8 +241,8 @@ function encodeUint32(value) {
 }
 
 function encodeUint64(value) {
-  if (value >= 0xffffffffffff) {
-    throw 'Value out of range. 48+ bit integer is not supported in JavaScript'
+  if (value > maxUint) {
+    throw 'Value out of range. Full 64 bit integer is not supported in JavaScript.'
   }
   let buf = Buffer.alloc(8, 0);
   buf.writeUIntLE(value, 0, 6);
@@ -269,6 +272,8 @@ function encodeString(value) {
 }
 
 module.exports = {
+  maxUintBits,
+  maxUint,
   encodeUint8,
   encodeUint16,
   encodeUint32,
@@ -654,6 +659,7 @@ module.exports = {
 'use strict';
 
 const nacl = require('tweetnacl');
+const maxUintBits = require('../common/serialize').maxUintBits;
 
 function prefixByteCountToHexString(hexString) {
   let len = hexString.length
@@ -707,6 +713,11 @@ function randomBytesHex(len) {
   return bytesToHex(randomBytes(len));
 }
 
+function randomUint64() {
+  let hex = randomBytesHex(maxUintBits/8);
+  return parseInt(hex, 16);
+}
+
 function mergeTypedArrays(a, b) {
   var c = new a.constructor(a.length + b.length);
   c.set(a);
@@ -721,10 +732,11 @@ module.exports = {
   paddingSignature,
   randomBytes,
   randomBytesHex,
+  randomUint64,
   mergeTypedArrays,
 }
 
-},{"tweetnacl":89}],11:[function(require,module,exports){
+},{"../common/serialize":3,"tweetnacl":89}],11:[function(require,module,exports){
 'use strict'
 
 let baseInfo = function () {
@@ -736,6 +748,7 @@ module.exports = {
   getNonceByAddr: Object.assign(baseInfo(), {method: "getnoncebyaddr", params: {address: ""}}),
   sendRawTransaction: Object.assign(baseInfo(), {method: "sendrawtransaction", params: {tx: ""}}),
   getAddressByName: Object.assign(baseInfo(), {method: "getaddressbyname", params: {name: ""}}),
+  getBlockCount: Object.assign(baseInfo(), {method: "getblockcount", params: {name: ""}}),
 }
 
 },{}],12:[function(require,module,exports){
@@ -812,12 +825,22 @@ function getAddressByName(name, callId) {
   return axiosRequest(getAddressByNameApi)
 }
 
+function getBlockCount(callId) {
+  let getBlockCountApi = api.getBlockCount
+  if(!is.undefined(callId)) {
+    getBlockCountApi.id = callId
+  }
+
+  return axiosRequest(getBlockCountApi)
+}
+
 module.exports = {
   configure,
   getBalanceByAddr,
   getNonceByAddr,
   sendRawTransaction,
   getAddressByName,
+  getBlockCount,
 }
 
 },{"./api":11,"axios":17,"es6-promise/auto":81,"is":86}],13:[function(require,module,exports){
@@ -3726,6 +3749,24 @@ function newSubscribe(subscriber, identifier, topic, bucket, duration, meta) {
   return pld;
 }
 
+function newNanoPay(sender, recipient, nonce, amount, height, duration) {
+  amount = nknMath.mulAndFloor(nknMath.newNum(amount), nknMath.NKN_ACC_MUL);
+
+  let nanoPay = new transaction.NanoPay();
+  nanoPay.setSender(Buffer.from(sender, 'hex'));
+  nanoPay.setRecipient(Buffer.from(recipient, 'hex'));
+  nanoPay.setNonce(nonce);
+  nanoPay.setAmount(amount);
+  nanoPay.setHeight(height);
+  nanoPay.setDuration(duration);
+
+  let pld = new transaction.Payload();
+  pld.setType(transaction.PayloadType.NANO_PAY_TYPE);
+  pld.setData(nanoPay.serializeBinary());
+
+  return pld;
+}
+
 function serializePayload(payload) {
   let hex = '';
   hex += serialize.encodeUint32(payload.getType());
@@ -3738,6 +3779,7 @@ module.exports = {
   newRegisterName,
   newDeleteName,
   newSubscribe,
+  newNanoPay,
   serialize: serializePayload,
 }
 
@@ -3967,6 +4009,40 @@ let NknWallet = function (account) {
     return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
   }
 
+  this.createOrUpdateNanoPay = async function (toAddress, amount, duration, nonce) {
+    if(!protocol.verifyAddress(toAddress)) {
+      throw errors.newError(errors.code.INVALID_ADDRESS())
+    }
+
+    let balance = await this.getBalance();
+    if (nknMath.lessThan(balance, amount)) {
+      throw errors.newError(errors.code.NOT_ENOUGH_NKN_COIN())
+    }
+
+    if (!nonce) {
+      nonce = tools.randomUint64();
+    }
+
+    let height = await http.getBlockCount() - 1;
+
+    let pld = payload.newNanoPay(
+      this.programHash,
+      protocol.addressStringToProgramHash(toAddress),
+      nonce,
+      amount,
+      height,
+      duration,
+    );
+
+    let txn = transaction.newTransaction(account, pld);
+
+    return txn;
+  }
+
+  this.sendTransaction = function (txn) {
+    return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
+  }
+
   /***
   * get the public key of this wallet
   * @returns {string} : the public key of this wallet
@@ -4001,7 +4077,7 @@ let NknWallet = function (account) {
   */
   this.toJSON = function () {
     return JSON.stringify({
-      Version: walletVersion,
+      Version: this.version,
       PasswordHash: this.passwordHash,
       MasterKey: this.masterKey,
       IV: this.iv,
@@ -4018,7 +4094,7 @@ let NknWallet = function (account) {
 * @param password
 * @returns {*}
 */
-function passwordFormat(password) {
+function passwordHash(password) {
   return hash.doubleSha256(password)
 }
 
@@ -4026,7 +4102,7 @@ function passwordFormat(password) {
 function genWallet(account, password, prevMasterKey, prevIV) {
   let wallet = new NknWallet(account)
 
-  password = passwordFormat(password)
+  let pswdHash = passwordHash(password)
 
   let iv = prevIV || encryption.genAESIV()
   let masterKey = prevMasterKey || encryption.genAESPassword()
@@ -4036,20 +4112,21 @@ function genWallet(account, password, prevMasterKey, prevIV) {
   let seed = account.getSeed()
   seed = hash.cryptoHexStringParse(seed)
 
-  wallet.passwordHash = hash.sha256Hex(password)
+  wallet.passwordHash = hash.sha256Hex(pswdHash)
   wallet.iv = iv
-  wallet.masterKey = encryption.encrypt(masterKey, password, iv)
+  wallet.masterKey = encryption.encrypt(masterKey, pswdHash, iv)
   wallet.address = account.getAddress()
   wallet.programHash = account.getProgramHash()
   wallet.seedEncrypted = encryption.encrypt(seed, masterKey.toString(), iv)
   wallet.contractData = account.getContractString()
+  wallet.version = walletVersion
 
   return wallet
 }
 
 function decryptWalletSeed(masterKeyEncrypted, iv, seedEncrypted, password) {
-  password = passwordFormat(password)
-  let masterKey = encryption.decrypt(hash.cryptoHexStringParse(masterKeyEncrypted), password, iv)
+  let pswdHash = passwordHash(password)
+  let masterKey = encryption.decrypt(hash.cryptoHexStringParse(masterKeyEncrypted), pswdHash, iv)
   let seed = encryption.decrypt(hash.cryptoHexStringParse(seedEncrypted), masterKey, iv)
 
   return {
@@ -4064,18 +4141,13 @@ function decryptWalletSeed(masterKeyEncrypted, iv, seedEncrypted, password) {
 * @param password
 */
 function verifyWalletPassword(wallet, password) {
-  password = passwordFormat(password)
+  let pswdHash = passwordHash(password)
 
-  const passwordHash = hash.sha256Hex(password)
-  if(passwordHash !== wallet.passwordHash) {
+  if(wallet.passwordHash !== hash.sha256Hex(pswdHash)) {
     return false
   }
 
-  let masterKey = encryption.decrypt(hash.cryptoHexStringParse(wallet.masterKey), password, wallet.iv)
-  let seed = encryption.decrypt(hash.cryptoHexStringParse(wallet.seedEncrypted), masterKey, wallet.iv)
-  let account = restoreAccount(seed, password)
-
-  return wallet.programHash === account.getProgramHash()
+  return true;
 }
 
 /**
@@ -4131,12 +4203,14 @@ function loadJsonWallet(walletJson, password) {
     throw "Invalid wallet format";
   }
 
-  let keys = decryptWalletSeed(walletObj.MasterKey, walletObj.IV, walletObj.SeedEncrypted, password)
-  let wallet = restoreWalletFromJson(keys.seed, password, keys.masterKey, walletObj.IV)
-
-  if (wallet.address !== walletObj.Address) {
+  let pswdHash = passwordHash(password);
+  if (walletObj.PasswordHash !== hash.sha256Hex(pswdHash)) {
     throw "Wrong password";
   }
+
+  let masterKey = encryption.decrypt(hash.cryptoHexStringParse(walletObj.MasterKey), pswdHash, walletObj.IV);
+  let seed = encryption.decrypt(hash.cryptoHexStringParse(walletObj.SeedEncrypted), masterKey, walletObj.IV);
+  let wallet = restoreWalletFromJson(seed, password, masterKey, walletObj.IV);
 
   return wallet
 }
