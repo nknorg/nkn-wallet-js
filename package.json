@@ -30,8 +30,8 @@
         {
           "replace": [
             {
-              "from": "require\\('react-native-randombytes'\\)",
-              "to": "{}"
+              "from": "var global = Function\\('return this'\\)\\(\\);",
+              "to": "var global = (function(){ return this }).call(null);"
             }
           ]
         }
