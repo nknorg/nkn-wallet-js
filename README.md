@@ -7,90 +7,111 @@ functions working properly. It should be used only for testing now.**
 
 ## Install
 
-For npm:
+### Node
 
 ```shell
-npm install nkn-wallet
+npm i nkn-wallet
 ```
 
-And then in your code:
+### Browser
 
-```javascript
-const nknWallet = require('nkn-wallet');
-```
+Use `dist/nkn-wallet.js` or `dist/nkn-wallet.min.js`.
 
-For browser, use `dist/nkn-wallet.js` or `dist/nkn-wallet.min.js`.
+If you use it in React Native, you also need to follow the installation guide in
+[react-native-crypto](https://github.com/tradle/react-native-crypto).
 
 ## Usage
 
 + import
 ```javascript
-const nknWallet = require('nkn-wallet');
+// ES6
+import nknWallet from 'nkn-wallet';
+
+// ES5
+var nknWallet = require('nkn-wallet');
 ```
 
-+ create a new wallet
++ Create a new wallet
 ```javascript
-const wallet = nknWallet.newWallet('pwd')
+const wallet = nknWallet.newWallet('password');
 ```
 
-+ get wallet's json string
++ Get wallet's json string
 ```javascript
-const walletJson = wallet.toJSON()
+const walletJson = wallet.toJSON();
 ```
 
-+ load wallet from a wallet json string
++ Load wallet from a wallet json string
 ```javascript
-const walletFromJson = nknWallet.loadJsonWallet(walletJson, 'pwd')
+const walletFromJson = nknWallet.loadJsonWallet(walletJson, 'password');
 ```
 
-+ restore wallet from a private key
++ Restore wallet from a private key
 ```javascript
-const walletFromPrivateKey = nknWallet.restoreWalletByPrivateKey('the private key', 'new-wallet-password')
+const walletFromSeed = nknWallet.restoreWalletBySeed(wallet.getSeed(), 'new-wallet-password');
 ```
 
-+ query asset balance for this wallet
++ Verify whether an address is valid
 ```javascript
-wallet.queryAssetBalance().then(function(value) {
-  console.log('asset balance for this wallet is: ', value.toString())
-}).catch(function(error) {
-  console.log('query balance fail: ', error)
-})
+console.log(nknWallet.verifyAddress(wallet.address));
 ```
 
-+ transfer asset to some address
++ Verify password of the wallet
 ```javascript
-wallet.transferTo(wallet.address, 100, 'pwd').then(function(data) {
-  console.log('success: ', data)
-}).catch(function(error) {
-  console.log('fail: ', error)
-})
+console.log(wallet.verifyPassword('password'));
 ```
 
-+ register name for this wallet (only a-z and length 8-12)
++ Get balance of this wallet
 ```javascript
-wallet.registerName('somename', 'pwd').then(function(data) {
-  console.log('success: ', data)
-}).catch(function(error) {
-  console.log('fail: ', error)
-})
+wallet.getBalance()
+  .then(function(value) {
+    console.log('Balance for this wallet is:', value.toString());
+  })
+  .catch(function(error) {
+    console.log('Get balance fail:', error);
+  });
 ```
 
-+ delete name for this wallet
++ Transfer token to some address
 ```javascript
-wallet.deleteName('somename', 'pwd').then(function(data) {
-  console.log('success: ', data)
-}).catch(function(error) {
-  console.log('fail: ', error)
-})
+wallet.transferTo(wallet.address, 1)
+  .then(function(data) {
+    console.log('Transfer success:', data);
+  })
+  .catch(function(error) {
+    console.log('Transfer fail:', error);
+  });
 ```
 
-+ subscribe to bucket 0 of specified topic for this wallet for next 10 blocks (publish is done through [nkn-client-js](https://github.com/nknorg/nkn-client-js))
++ Register name for this wallet
 ```javascript
-wallet.subscribe('topic', 0, 10, 'pwd', 'identifier').then(function(data) {
-  console.log('success: ', data)
-}).catch(function(error) {
-  console.log('fail: ', error)
-})
+wallet.registerName('some-name')
+  .then(function(data) {
+    console.log('Register name success:', data);
+  })
+  .catch(function(error) {
+    console.log('Register name fail:', error);
+  });
+```
+
++ Delete name for this wallet
+```javascript
+wallet.deleteName('some-name')
+  .then(function(data) {
+    console.log('Delete name success:', data);
+  }).catch(function(error) {
+    console.log('Delete name fail:', error);
+  });
+```
+
++ Subscribe to bucket 0 of specified topic for this wallet for next 10 blocks
+```javascript
+wallet.subscribe('topic', 0, 10, 'identifier')
+  .then(function(data) {
+    console.log('Subscribe success:', data);
+  }).catch(function(error) {
+    console.log('Subscribe fail:', error);
+  });
 ```
 
 Check [examples](examples) for full examples.
@@ -120,8 +141,7 @@ configurations will be used.
 /***
  * global configuration:
  * {
- *  assetId: '',  // the NKN Token id, default value: 4945ca009174097e6614d306b66e1f9cb1fce586cb857729be9e1c5cc04c9c02
- *  rpcAddr:'',   // node addr for dynamic information query, default value: http://cluster2-oregon.nkn.org:30003
+ *  rpcAddr:'',
  * }
  *
  * @param config | Object
@@ -157,7 +177,16 @@ nknWallet.loadJsonWallet(walletJson, password)
  * @param password : string : password for new wallet
  * @returns {NknWallet} : a NknWallet instance
  */
-nknWallet.restoreWalletByPrivateKey(privateKey, password)
+nknWallet.restoreWalletBySeed(privateKey, password)
+```
+
+```javascript
+/***
+ * verify whether an address is valid
+ * @param address : string : an address
+ * @returns {boolean} : verifies whether an address is valid
+ */
+nknWallet.verifyAddress(address)
 ```
 
 + NknWallet
@@ -182,6 +211,15 @@ getPublicKey()
 
 ```javascript
 /***
+ * verify password of the wallet
+ * @param password : string : password for this wallet
+ * @returns {boolean} : verifies whether the password is correct
+ */
+verifyPassword(password)
+```
+
+```javascript
+/***
  * get the private key of this wallet
  * @returns {string} : the private key of this wallet
  *
@@ -195,36 +233,33 @@ getPrivateKey()
  * transfer nkn to some valid address
  * @param toAddress : string : valid nkn address
  * @param value : number : value for transfer
- * @param password : string : wallet password
  *
  * !!! the fail function will be called for any transfer errors  
  *     and the parameter applied is a WalletError instance. !!!
   */
-transferTo(toAddress, value, password)
+transferTo(toAddress, value)
 ```
 
 ```javascript
 /***
  * register name on nkn for current wallet
  * @param name : string : name to register
- * @param password : string : wallet password
  *
  * !!! the fail function will be called for any register errors  
  *     and the parameter applied is a WalletError instance. !!!
   */
-registerName(name, password)
+registerName(name)
 ```
 
 ```javascript
 /***
  * delete name on nkn for current wallet
  * @param name : string : name to delete
- * @param password : string : wallet password
  *
  * !!! the fail function will be called for any delete errors  
  *     and the parameter applied is a WalletError instance. !!!
   */
-deleteName(name, password)
+deleteName(name)
 ```
 
 ```javascript
@@ -233,39 +268,20 @@ deleteName(name, password)
  * @param topic : string : topic to subscribe to
  * @param bucket : number : bucket of topic to subscribe to
  * @param duration : number : subscription duration
- * @param password : string : wallet password
  * @param identifier : string : optional identifier
  *
  * !!! the fail function will be called for any register errors  
  *     and the parameter applied is a WalletError instance. !!!
   */
-subscribe(topic, bucket, duration, password, identifier = '')
+subscribe(topic, bucket, duration, identifier = '')
 ```
 
 ```javascript
 /***
- * query asset balance
+ * query balance
  * @returns {promise} : if resolved, the parameter is a decimal.js instance
  */
-queryAssetBalance()
-```
-
-```javascript
-/***
- * recharge the prepaid balance
- * @param value : number : how much NKN you want to prepay
- * @param rates : number : how much NKN you want to pay for one data transfer
- * @param password : string : password for this wallet
- */
-prepay(value, rates, password)
-```
-
-```javascript
-/***
- * query the prepay balance
- * @returns {promise} : if resolved, the data's will be an object like this {Amount: string, Rates: string}
- */
-queryPrepaiedInfo()
+getBalance()
 ```
 
 ## Contributing
