@@ -141,7 +141,7 @@ configurations will be used.
 /***
  * global configuration:
  * {
- *  rpcAddr:'',   // node addr for dynamic information query, default value: http://testnet-node-0001.nkn.org:30003
+ *  rpcAddr:'',
  * }
  *
  * @param config | Object

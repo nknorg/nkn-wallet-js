@@ -288,7 +288,7 @@ module.exports = {
 'use strict'
 
 module.exports = {
-  rpcAddr: 'http://devnet-seed-0001.nkn.org:30003',
+  rpcAddr: 'https://mainnet-rpc-node-0001.nkn.org/mainnet/api/wallet',
 }
 
 },{}],5:[function(require,module,exports){
