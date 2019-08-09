@@ -3983,7 +3983,7 @@ let NknWallet = function (account) {
   * @param toAddress : string : valid nkn address
   * @param value : number : value for transfer
   */
-  this.transferTo = async function (toAddress, amount) {
+  this.transferTo = async function (toAddress, amount, options = {}) {
     if(!protocol.verifyAddress(toAddress)) {
       throw errors.newError(errors.code.INVALID_ADDRESS())
     }
@@ -4001,7 +4001,7 @@ let NknWallet = function (account) {
       amount,
     );
 
-    let txn = transaction.newTransaction(account, pld, nonce);
+    let txn = transaction.newTransaction(account, pld, nonce, options.fee || 0, options.attrs || '');
 
     return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
   }
@@ -4010,12 +4010,12 @@ let NknWallet = function (account) {
   * register name on nkn for current wallet
   * @param name : string : name to register
   */
-  this.registerName = async function (name) {
+  this.registerName = async function (name, options = {}) {
     let nonce = await this.getNonce();
 
     let pld = payload.newRegisterName(this.getPublicKey(), name);
 
-    let txn = transaction.newTransaction(account, pld, nonce);
+    let txn = transaction.newTransaction(account, pld, nonce, options.fee || 0, options.attrs || '');
 
     return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
   }
@@ -4024,12 +4024,12 @@ let NknWallet = function (account) {
   * delete name on nkn for current wallet
   * @param name : string : name to delete
   */
-  this.deleteName = async function (name) {
+  this.deleteName = async function (name, options = {}) {
     let nonce = await this.getNonce();
 
     let pld = payload.newDeleteName(this.getPublicKey(), name);
 
-    let txn = transaction.newTransaction(account, pld, nonce);
+    let txn = transaction.newTransaction(account, pld, nonce, options.fee || 0, options.attrs || '');
 
     return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
   }
@@ -4056,17 +4056,17 @@ let NknWallet = function (account) {
   * @param identifier : string : optional identifier
   * @param meta : string : optional meta data
   */
-  this.subscribe = async function (topic, bucket, duration, identifier = '', meta = '') {
+  this.subscribe = async function (topic, bucket, duration, identifier = '', meta = '', options = {}) {
     let nonce = await this.getNonce();
 
     let pld = payload.newSubscribe(this.getPublicKey(), identifier, topic, bucket, duration, meta);
 
-    let txn = transaction.newTransaction(account, pld, nonce);
+    let txn = transaction.newTransaction(account, pld, nonce, options.fee || 0, options.attrs || '');
 
     return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
   }
 
-  this.createOrUpdateNanoPay = async function (toAddress, amount, expiration, id) {
+  this.createOrUpdateNanoPay = async function (toAddress, amount, expiration, id, options = {}) {
     if(!protocol.verifyAddress(toAddress)) {
       throw errors.newError(errors.code.INVALID_ADDRESS())
     }
@@ -4089,7 +4089,7 @@ let NknWallet = function (account) {
       expiration,
     );
 
-    let txn = transaction.newTransaction(account, pld);
+    let txn = transaction.newTransaction(account, pld, 0, options.fee || 0, options.attrs || '');
 
     return txn;
   }
