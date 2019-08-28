@@ -61,11 +61,18 @@ wallet.getAddressByName('somename').then(function(data) {
   console.log('Get address by name fail:', error);
 });
 
-// Subscribe to bucket 0 of specified topic for this wallet for next 10 blocks
-wallet.subscribe('topic', 0, 10, 'identifier').then(function(data) {
+// Subscribe to a topic for this wallet for next 10 blocks
+wallet.subscribe('topic', 10, 'identifier').then(function(data) {
   console.log('Subscribe success:', data);
 }).catch(function(error) {
   console.log('Subscribe fail:', error);
+});
+
+// Unsubscribe to a topic
+wallet.unsubscribe('topic', 'identifier').then(function(data) {
+  console.log('Unsubscribe success:', data);
+}).catch(function(error) {
+  console.log('Unsubscribe fail:', error);
 });
 
 // Get nonce for next transaction of this wallet
