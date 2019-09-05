@@ -104,9 +104,9 @@ wallet.deleteName('some-name')
   });
 ```
 
-+ Subscribe to bucket 0 of specified topic for this wallet for next 10 blocks
++ Subscribe to specified topic for this wallet for next 10 blocks
 ```javascript
-wallet.subscribe('topic', 0, 10, 'identifier')
+wallet.subscribe('topic', 10, 'identifier')
   .then(function(data) {
     console.log('Subscribe success:', data);
   }).catch(function(error) {
@@ -266,14 +266,14 @@ deleteName(name)
 /***
  * subscribe to topic on nkn for current wallet
  * @param topic : string : topic to subscribe to
- * @param bucket : number : bucket of topic to subscribe to
  * @param duration : number : subscription duration
  * @param identifier : string : optional identifier
+ * @param meta : string : optional metadata
  *
  * !!! the fail function will be called for any register errors  
  *     and the parameter applied is a WalletError instance. !!!
   */
-subscribe(topic, bucket, duration, identifier = '')
+subscribe(topic, duration, identifier = '', meta = '', options = {})
 ```
 
 ```javascript
