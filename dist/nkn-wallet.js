@@ -4401,6 +4401,8 @@ function signTx(account, txn) {
   let digest = hash.sha256Hex(hex);
   let signature = account.getKey().sign(Buffer.from(digest, 'hex'));
 
+  txn.hash = hash.doubleSha256Hex(hex);
+
   let prgm = new transaction.Program();
   prgm.setCode(Buffer.from(account.getSignatureRedeem(), 'hex'));
   prgm.setParameter(Buffer.from(protocol.signatureToParameter(signature), 'hex'));
@@ -4519,9 +4521,7 @@ let NknWallet = function (account) {
       amount,
     );
 
-    let txn = transaction.newTransaction(account, pld, nonce, options.fee || 0, options.attrs || '');
-
-    return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
+    return this.createTransaction(pld, nonce, options);
   }
 
   /***
@@ -4530,12 +4530,8 @@ let NknWallet = function (account) {
   */
   this.registerName = async function (name, options = {}) {
     let nonce = await this.getNonce();
-
     let pld = payload.newRegisterName(this.getPublicKey(), name);
-
-    let txn = transaction.newTransaction(account, pld, nonce, options.fee || 0, options.attrs || '');
-
-    return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
+    return this.createTransaction(pld, nonce, options);
   }
 
   /***
@@ -4544,12 +4540,8 @@ let NknWallet = function (account) {
   */
   this.deleteName = async function (name, options = {}) {
     let nonce = await this.getNonce();
-
     let pld = payload.newDeleteName(this.getPublicKey(), name);
-
-    let txn = transaction.newTransaction(account, pld, nonce, options.fee || 0, options.attrs || '');
-
-    return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
+    return this.createTransaction(pld, nonce, options);
   }
 
   /***
@@ -4575,12 +4567,8 @@ let NknWallet = function (account) {
   */
   this.subscribe = async function (topic, duration, identifier = '', meta = '', options = {}) {
     let nonce = await this.getNonce();
-
     let pld = payload.newSubscribe(this.getPublicKey(), identifier, topic, duration, meta);
-
-    let txn = transaction.newTransaction(account, pld, nonce, options.fee || 0, options.attrs || '');
-
-    return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
+    return this.createTransaction(pld, nonce, options);
   }
 
   /***
@@ -4590,12 +4578,8 @@ let NknWallet = function (account) {
   */
   this.unsubscribe = async function (topic, identifier = '', options = {}) {
     let nonce = await this.getNonce();
-
     let pld = payload.newUnsubscribe(this.getPublicKey(), identifier, topic);
-
-    let txn = transaction.newTransaction(account, pld, nonce, options.fee || 0, options.attrs || '');
-
-    return http.sendRawTransaction(tools.bytesToHex(txn.serializeBinary()));
+    return this.createTransaction(pld, nonce, options);
   }
 
   this.createOrUpdateNanoPay = async function (toAddress, amount, expiration, id, options = {}) {
@@ -4621,9 +4605,15 @@ let NknWallet = function (account) {
       expiration,
     );
 
-    let txn = transaction.newTransaction(account, pld, 0, options.fee || 0, options.attrs || '');
+    return this.createTransaction(pld, 0, Object.assign({}, options, { buildOnly: true }));
+  }
 
-    return txn;
+  this.createTransaction = function (pld, nonce, options) {
+    let txn = transaction.newTransaction(account, pld, nonce, options.fee || 0, options.attrs || '');
+    if (options.buildOnly) {
+      return txn;
+    }
+    return this.sendTransaction(txn);
   }
 
   this.sendTransaction = function (txn) {
