@@ -4513,7 +4513,7 @@ let NknWallet = function (account) {
       throw errors.newError(errors.code.NOT_ENOUGH_NKN_COIN())
     }
 
-    let nonce = await this.getNonce();
+    let nonce = options.nonce || await this.getNonce();
 
     let pld = payload.newTransfer(
       this.programHash,
@@ -4529,7 +4529,7 @@ let NknWallet = function (account) {
   * @param name : string : name to register
   */
   this.registerName = async function (name, options = {}) {
-    let nonce = await this.getNonce();
+    let nonce = options.nonce || await this.getNonce();
     let pld = payload.newRegisterName(this.getPublicKey(), name);
     return this.createTransaction(pld, nonce, options);
   }
@@ -4539,7 +4539,7 @@ let NknWallet = function (account) {
   * @param name : string : name to delete
   */
   this.deleteName = async function (name, options = {}) {
-    let nonce = await this.getNonce();
+    let nonce = options.nonce || await this.getNonce();
     let pld = payload.newDeleteName(this.getPublicKey(), name);
     return this.createTransaction(pld, nonce, options);
   }
@@ -4566,7 +4566,7 @@ let NknWallet = function (account) {
   * @param meta : string : optional meta data
   */
   this.subscribe = async function (topic, duration, identifier = '', meta = '', options = {}) {
-    let nonce = await this.getNonce();
+    let nonce = options.nonce || await this.getNonce();
     let pld = payload.newSubscribe(this.getPublicKey(), identifier, topic, duration, meta);
     return this.createTransaction(pld, nonce, options);
   }
@@ -4577,7 +4577,7 @@ let NknWallet = function (account) {
   * @param identifier : string : optional identifier
   */
   this.unsubscribe = async function (topic, identifier = '', options = {}) {
-    let nonce = await this.getNonce();
+    let nonce = options.nonce || await this.getNonce();
     let pld = payload.newUnsubscribe(this.getPublicKey(), identifier, topic);
     return this.createTransaction(pld, nonce, options);
   }
