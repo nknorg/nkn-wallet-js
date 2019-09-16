@@ -1,67 +1,44 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.nknWallet = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-'use strict'
+'use strict';
 
-let WalletError = function (code, msg) {
-  this.code = code
-  this.msg = msg
+const errorCode = {
+  unknownError: 0,
+  notEnoughBalance: 1,
+  invalidAddress: 2,
+  wrongPassword: 3,
+  invalidWalletFormat: 4,
+  invalidWalletVersion: 5,
+  invalidArgument: 6,
+  invalidResponse: 7,
+  noRPCServer: 8,
+  serverError: 9,
+};
 
-  this.print = function () {
-    console.log(this.msg)
+const defaultErrorMsg = {
+  unknownError: 'unknown error',
+  notEnoughBalance: 'not enough balance',
+  invalidWalletAddress: 'invalid wallet address',
+  wrongPassword: 'invalid password',
+  invalidWalletFormat: 'invalid wallet format',
+  invalidWalletVersion: 'invalid wallet verison',
+  invalidArgument: 'invalid argument',
+  invalidResponse: 'invalid response from server',
+  noRPCServer: 'RPC server address is not set',
+  serverError: 'error from server',
+};
+
+function Error(code, msg) {
+  if (!(this instanceof Error)) {
+    return new Error(code, msg);
   }
 
-  this.cloneError = function () {
-    return new WalletError(this.code, this.msg)
-  }
-}
-
-let NKN_ERROR_CODE = new function () {
-  this.UNKNOWN_ERR = () => {return 0}
-  this.NOT_ENOUGH_NKN_COIN = () => {return 1}
-  this.INVALID_ADDRESS = () => {return 2}
-  this.INVALID_PASSWORD = () => {return 3}
-  this.INVALID_WALLET_FORMAT = () => {return 4}
-  this.INVALID_WALLET_VERSION = () => {return 5}
-}
-
-let NKN_WALLET_ERROR_LIST = new function () {
-
-  let errorList = {}
-
-  errorList[NKN_ERROR_CODE.UNKNOWN_ERR()] =
-    new WalletError(NKN_ERROR_CODE.UNKNOWN_ERR(), 'UNKNOWN_ERR')
-
-  errorList[NKN_ERROR_CODE.NOT_ENOUGH_NKN_COIN()] =
-    new WalletError(NKN_ERROR_CODE.NOT_ENOUGH_NKN_COIN(), 'not enough balance')
-
-  errorList[NKN_ERROR_CODE.INVALID_ADDRESS()] =
-    new WalletError(NKN_ERROR_CODE.INVALID_ADDRESS(), 'invalid address')
-
-  errorList[NKN_ERROR_CODE.INVALID_PASSWORD()] =
-    new WalletError(NKN_ERROR_CODE.INVALID_PASSWORD(), 'invalid password')
-
-  errorList[NKN_ERROR_CODE.INVALID_WALLET_FORMAT()] =
-    new WalletError(NKN_ERROR_CODE.INVALID_WALLET_FORMAT(), 'invalid wallet format')
-
-  errorList[NKN_ERROR_CODE.INVALID_WALLET_VERSION()] =
-    new WalletError(NKN_ERROR_CODE.INVALID_WALLET_VERSION(), 'invalid wallet version')
-
-  this.newError = function (code) {
-    if(!errorList[code]) {
-      return errorList[NKN_ERROR_CODE.UNKNOWN_ERR()].cloneError()
-    }
-
-    return errorList[code].cloneError()
-  }
-}
-
-function newError(code) {
-  return NKN_WALLET_ERROR_LIST.newError(code)
+  this.code = code || errorCode.unknownError;
+  this.msg = msg || defaultErrorMsg[code] || defaultErrorMsg.unknownError;
 }
 
 module.exports = {
-  code: NKN_ERROR_CODE,
-  newError: newError,
-  walletError: WalletError
+  code: errorCode,
+  Error,
 }
 
 },{}],2:[function(require,module,exports){
@@ -219,6 +196,8 @@ module.exports = {
 (function (Buffer){
 'use strict';
 
+const errors = require('./errors');
+
 const maxUintBits = 48;
 const maxUint = 2**maxUintBits;
 
@@ -242,7 +221,7 @@ function encodeUint32(value) {
 
 function encodeUint64(value) {
   if (value > maxUint) {
-    throw 'Value out of range. Full 64 bit integer is not supported in JavaScript.'
+    throw errors.Error(errors.code.invalidArgument, 'value out of range: full 64 bit integer is not supported in JavaScript')
   }
   let buf = Buffer.alloc(8, 0);
   buf.writeUIntLE(value, 0, 6);
@@ -284,7 +263,7 @@ module.exports = {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":90}],4:[function(require,module,exports){
+},{"./errors":1,"buffer":90}],4:[function(require,module,exports){
 'use strict'
 
 module.exports = {
@@ -299,6 +278,7 @@ const is = require('is');
 const { newKey, restoreKey } = require('./key');
 const protocol = require('./protocol');
 const tools = require('./tools');
+const errors = require('../common/errors');
 
 function genAccountContractString(signatureRedeem, programHash) {
   let contract = ''
@@ -365,7 +345,7 @@ function newAccount() {
 
 function restoreAccount(seed) {
   if(!is.string(seed)) {
-    throw 'Seed is not a string'
+    throw errors.Error(errors.code.invalidArgument, 'seed is not a string')
   }
 
   return new account(seed)
@@ -376,7 +356,7 @@ module.exports = {
   restoreAccount
 }
 
-},{"./key":8,"./protocol":9,"./tools":10,"is":182}],6:[function(require,module,exports){
+},{"../common/errors":1,"./key":8,"./protocol":9,"./tools":10,"is":182}],6:[function(require,module,exports){
 'use strict';
 
 const CryptoJS = require('crypto-js');
@@ -479,6 +459,7 @@ const is = require('is');
 
 const protocol = require('./protocol');
 const tools = require('./tools');
+const errors = require('../common/errors');
 
 let Key = function (seed) {
   this.sign = function (message) {
@@ -491,7 +472,7 @@ let Key = function (seed) {
     try {
       seedBytes = tools.hexToBytes(seed);
     } catch (e) {
-      throw 'Seed is not a valid hex string'
+      throw errors.Error(errors.code.invalidArgument, 'seed is not a valid hex string')
     }
     setKeyPair.call(this, seedBytes);
   } else {
@@ -516,7 +497,7 @@ function newKey() {
 
 function restoreKey(seed) {
   if(!is.string(seed)) {
-    throw 'Seed is not a string'
+    throw errors.Error(errors.code.invalidArgument, 'seed is not a string')
   }
   return new Key(seed)
 }
@@ -526,7 +507,7 @@ module.exports = {
   restoreKey,
 }
 
-},{"./protocol":9,"./tools":10,"is":182,"tweetnacl":235}],9:[function(require,module,exports){
+},{"../common/errors":1,"./protocol":9,"./tools":10,"is":182,"tweetnacl":235}],9:[function(require,module,exports){
 'use strict';
 
 const BITCOIN_BASE58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
@@ -758,12 +739,13 @@ require('es6-promise/auto');
 const axios = require('axios')
 const is = require('is')
 const api = require('./api')
+const errors = require('../common/errors');
 
 let serverAddr = null
 
 async function axiosRequest(param) {
   if(!serverAddr) {
-    throw "RPC server address is not set"
+    throw errors.Error(errors.code.noRPCServer)
   }
 
   let response = await axios.post(serverAddr, JSON.stringify(param), {
@@ -775,10 +757,10 @@ async function axiosRequest(param) {
   }
 
   if(!is.undefined(response.data.error)) {
-    throw response.data.error
+    throw errors.Error(errors.code.serverError, response.data.error)
   }
 
-  throw "Response format error."
+  throw errors.Error(errors.code.invalidResponse)
 }
 
 function configure(addr) {
@@ -843,7 +825,7 @@ module.exports = {
   getBlockCount,
 }
 
-},{"./api":11,"axios":31,"es6-promise/auto":160,"is":182}],13:[function(require,module,exports){
+},{"../common/errors":1,"./api":11,"axios":31,"es6-promise/auto":160,"is":182}],13:[function(require,module,exports){
 /**
  * @fileoverview
  * @enhanceable
@@ -4460,7 +4442,7 @@ let NknWallet = function (account) {
   */
   this.getBalance = async function (targetAddress) {
     if(!this.address && !targetAddress) {
-      throw "Address not set."
+      throw errors.Error(errors.code.invalidArgument, 'address is empty')
     }
 
     let queryAddress = this.address
@@ -4473,7 +4455,7 @@ let NknWallet = function (account) {
       return nknMath.newNum(data.amount)
     }
 
-    throw "No result returned"
+    throw errors.Error(errors.code.invalidResponse)
   }
 
   /***
@@ -4482,7 +4464,7 @@ let NknWallet = function (account) {
   */
   this.getNonce = async function (targetAddress) {
     if(!this.address && !targetAddress) {
-      throw "Address not set."
+      throw errors.Error(errors.code.invalidArgument, 'address is empty')
     }
 
     let queryAddress = this.address
@@ -4495,7 +4477,7 @@ let NknWallet = function (account) {
       return data.nonce
     }
 
-    throw "No result returned"
+    throw errors.Error(errors.code.invalidResponse)
   }
 
   /***
@@ -4505,12 +4487,12 @@ let NknWallet = function (account) {
   */
   this.transferTo = async function (toAddress, amount, options = {}) {
     if(!protocol.verifyAddress(toAddress)) {
-      throw errors.newError(errors.code.INVALID_ADDRESS())
+      throw errors.Error(errors.code.invalidAddress)
     }
 
     let balance = await this.getBalance();
     if (nknMath.lessThan(balance, amount)) {
-      throw errors.newError(errors.code.NOT_ENOUGH_NKN_COIN())
+      throw errors.Error(errors.code.notEnoughBalance)
     }
 
     let nonce = options.nonce || await this.getNonce();
@@ -4546,16 +4528,14 @@ let NknWallet = function (account) {
 
   /***
   * get address of a name
-  * @returns {promise} : if resolved, the parameter is a integer
+  * @param name : string : name to delete
   */
   this.getAddressByName = async function (name) {
     let addr = await http.getAddressByName(name)
-
     if (addr && is.string(addr)) {
       return addr
     }
-
-    throw "No result returned"
+    return null;
   }
 
   /***
@@ -4584,12 +4564,12 @@ let NknWallet = function (account) {
 
   this.createOrUpdateNanoPay = async function (toAddress, amount, expiration, id, options = {}) {
     if(!protocol.verifyAddress(toAddress)) {
-      throw errors.newError(errors.code.INVALID_ADDRESS())
+      throw errors.Error(errors.code.invalidAddress)
     }
 
     let balance = await this.getBalance();
     if (nknMath.lessThan(balance, amount)) {
-      throw errors.newError(errors.code.NOT_ENOUGH_NKN_COIN())
+      throw errors.Error(errors.code.notEnoughBalance)
     }
 
     if (!id) {
@@ -4773,16 +4753,16 @@ function restoreWalletFromJson(seed, password, prevMasterKey, preIV) {
 function loadJsonWallet(walletJson, password) {
   let walletObj = JSON.parse(walletJson)
   if (!is.number(walletObj.Version) || walletObj.Version < minCompatibleWalletVersion || walletObj.Version > maxCompatibleWalletVersion) {
-    throw "Invalid wallet version " + walletObj.Version + ", should be between " + minCompatibleWalletVersion + " and " + maxCompatibleWalletVersion;
+    throw errors.Error(errors.code.invalidWalletVersion, "Invalid wallet version " + walletObj.Version + ", should be between " + minCompatibleWalletVersion + " and " + maxCompatibleWalletVersion)
   }
 
   if (!is.string(walletObj.MasterKey) || !is.string(walletObj.IV) || !is.string(walletObj.SeedEncrypted) || !is.string(walletObj.Address)) {
-    throw "Invalid wallet format";
+    throw errors.Error(errors.code.invalidWalletFormat)
   }
 
   let pswdHash = passwordHash(password);
   if (walletObj.PasswordHash !== hash.sha256Hex(pswdHash)) {
-    throw "Wrong password";
+    throw errors.Error(errors.code.wrongPassword)
   }
 
   let masterKey = encryption.decrypt(hash.cryptoHexStringParse(walletObj.MasterKey), pswdHash, walletObj.IV);
