@@ -15,16 +15,16 @@ const errorCode = {
 };
 
 const defaultErrorMsg = {
-  unknownError: 'unknown error',
-  notEnoughBalance: 'not enough balance',
-  invalidWalletAddress: 'invalid wallet address',
-  wrongPassword: 'invalid password',
-  invalidWalletFormat: 'invalid wallet format',
-  invalidWalletVersion: 'invalid wallet verison',
-  invalidArgument: 'invalid argument',
-  invalidResponse: 'invalid response from server',
-  noRPCServer: 'RPC server address is not set',
-  serverError: 'error from server',
+  [errorCode.unknownError]: 'unknown error',
+  [errorCode.notEnoughBalance]: 'not enough balance',
+  [errorCode.invalidWalletAddress]: 'invalid wallet address',
+  [errorCode.wrongPassword]: 'invalid password',
+  [errorCode.invalidWalletFormat]: 'invalid wallet format',
+  [errorCode.invalidWalletVersion]: 'invalid wallet verison',
+  [errorCode.invalidArgument]: 'invalid argument',
+  [errorCode.invalidResponse]: 'invalid response from server',
+  [errorCode.noRPCServer]: 'RPC server address is not set',
+  [errorCode.serverError]: 'error from server',
 };
 
 function Error(code, msg) {
