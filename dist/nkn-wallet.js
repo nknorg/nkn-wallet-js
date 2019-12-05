@@ -4491,7 +4491,8 @@ let NknWallet = function (account) {
     }
 
     let balance = await this.getBalance();
-    if (nknMath.lessThan(balance, amount)) {
+    let fee = options.fee || 0;
+    if (nknMath.lessThan(balance, amount + fee)) {
       throw errors.Error(errors.code.notEnoughBalance)
     }
 
@@ -4568,7 +4569,8 @@ let NknWallet = function (account) {
     }
 
     let balance = await this.getBalance();
-    if (nknMath.lessThan(balance, amount)) {
+    let fee = options.fee || 0;
+    if (nknMath.lessThan(balance, amount + fee)) {
       throw errors.Error(errors.code.notEnoughBalance)
     }
 
