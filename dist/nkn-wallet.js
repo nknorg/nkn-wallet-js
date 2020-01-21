@@ -4473,8 +4473,15 @@ let NknWallet = function (account) {
     }
 
     let data = await http.getNonceByAddr(queryAddress)
-    if (data && is.number(data.nonce)) {
-      return data.nonce
+    if (data && (is.number(data.nonceInTxPool) || is.number(data.nonce))) {
+      let nonce = 0
+      if (is.number(data.nonce) && data.nonce > nonce) {
+        nonce = data.nonce
+      }
+      if (is.number(data.nonceInTxPool) && data.nonceInTxPool > nonce) {
+        nonce = data.nonceInTxPool
+      }
+      return nonce
     }
 
     throw errors.Error(errors.code.invalidResponse)
