@@ -1,9 +1,8 @@
+**Note: This repo is deprecated in favor of [nkn-sdk-js](https://github.com/nknorg/nkn-sdk-js).**
+
 # nkn-wallet-js
 
 JavaScript implementation of NKN wallet.
-
-**Note: This repository is in the early development stage and may not have all
-functions working properly. It should be used only for testing now.**
 
 ## Install
 
@@ -120,8 +119,8 @@ Check [examples](examples) for full examples.
 
 NKN wallet only stores some static information such as encrypted private keys,
 addresses and so on. All dynamic information needs to be queried from a NKN
-node. By default it will try to use RPC server provided by us, but you can
-change it (together with NKN token ID) by calling the global configure function:
+node. By default it will try to use RPC server provided by NKN, but you can
+change it by calling the global configure function:
 
 ```javascript
 nknWallet.configure({
